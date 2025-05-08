@@ -12,8 +12,14 @@ class Tarea extends Model
         'fecha_inicio',
         'fecha_fin',
         'descripcion',
-        'tiempo_previsto'
+        'tiempo_previsto',
+        'estado',
+        'cronometro_inicio',
+        'tiempo_real'
     ];
+
+
+
 
     public function orden()
     {

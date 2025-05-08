@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Orden;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrdenController extends Controller
 {
@@ -67,5 +68,27 @@ class OrdenController extends Controller
     {
         $orden->delete();
         return redirect()->route('ordenes.index')->with('success', 'Orden eliminada correctamente.');
+    }
+
+
+    public function datosMensuales()
+    {
+        $ordenesPorMes = DB::table('ordenes')
+            ->selectRaw('MONTH(fecha_entrada) as mes, COUNT(*) as total')
+            ->whereYear('fecha_entrada', now()->year)
+            ->groupBy('mes')
+            ->orderBy('mes')
+            ->get();
+
+        // Asegura 12 valores (uno por mes)
+        $datos = array_fill(1, 12, 0);
+        foreach ($ordenesPorMes as $registro) {
+            $datos[(int) $registro->mes] = $registro->total;
+        }
+
+        return response()->json([
+            'meses' => ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+            'datos' => array_values($datos)
+        ]);
     }
 }

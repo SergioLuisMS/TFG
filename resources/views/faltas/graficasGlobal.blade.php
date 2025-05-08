@@ -6,6 +6,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-gauge@0.3.0/dist/chartjs-gauge.min.js"></script>
 
 <div class="bg-white p-6 rounded shadow-md">
+    {{-- Botón de volver --}}
+    <a href="{{ route('dashboard') }}" class="text-sm text-azul hover:underline flex items-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.293 16.293a1 1 0 010 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L8.414 10l5.293 5.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+        Volver al dashboard
+    </a>
+    
     <h2 class="text-2xl font-bold mb-6">Gráficas de asistencia</h2>
 
     {{-- Selector de empleados --}}

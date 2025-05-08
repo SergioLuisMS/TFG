@@ -1,28 +1,26 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\FaltasController;
 use App\Http\Controllers\OrdenController;
 use App\Http\Controllers\TareaController;
-use Illuminate\Support\Str;
 
-// Forzar singular correcto para el recurso
+// Corrige la singularización de recursos
 Route::resourceVerbs([
     'create' => 'crear',
     'edit' => 'editar',
 ]);
 
-// Esto corrige que Laravel intente usar "ordene" como singular:
-Str::singular('ordenes'); // Asegura que use 'orden'
-Route::get('/', function () {
-    return view('welcome');
-});
+Str::singular('ordenes');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', fn () => view('welcome'));
+
+Route::get('/dashboard', fn () => view('dashboard'))
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
 
@@ -32,11 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Empleados
-    Route::get('/empleados/crear', [EmpleadoController::class, 'create'])->name('empleados.create');
-    Route::post('/empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
-    Route::get('/empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
-    Route::get('/empleados/{empleado}/editar', [EmpleadoController::class, 'edit'])->name('empleados.edit');
-    Route::put('/empleados/{empleado}', [EmpleadoController::class, 'update'])->name('empleados.update');
+    Route::resource('empleados', EmpleadoController::class)->except(['show', 'destroy']);
 
     // Faltas
     Route::get('/faltas', [FaltasController::class, 'index'])->name('asistencias.index');
@@ -48,28 +42,29 @@ Route::middleware('auth')->group(function () {
     Route::post('/faltas/crear', [FaltasController::class, 'guardarManual'])->name('faltas.guardar.manual');
     Route::get('/faltas/graficas/faltas-mensuales/{empleado}', [FaltasController::class, 'faltasAnuales']);
 
-    // Órdenes - usamos resource pero corrigiendo el parámetro
-    Route::resource('ordenes', OrdenController::class)->parameters([
-        'ordenes' => 'orden'
-    ]);
+    // Gráficas de tareas y órdenes
+    Route::get('/graficas/tareas-por-empleado', [FaltasController::class, 'tareasPorEmpleadoMes']);
+    Route::get('/graficas/ordenes-por-empleado', [FaltasController::class, 'ordenesPorEmpleadoMes']);
+    Route::get('/faltas/graficas/tareas-mensuales', [FaltasController::class, 'datosGraficoTareasMes'])->name('faltas.grafico.tareas-mensuales');
+    Route::get('/faltas/graficas/ordenes-mensuales', [FaltasController::class, 'ordenesMensualesPorEmpleado']);
 
+    Route::get('/faltas/graficas/ordenes-mensuales', [FaltasController::class, 'ordenesMensualesPorEmpleado'])->name('faltas.grafico.ordenes-mensuales');
+
+    // Órdenes
+    Route::resource('ordenes', OrdenController::class)->parameters(['ordenes' => 'orden']);
+    Route::get('/ordenes/datos/mensuales', [OrdenController::class, 'datosMensuales'])->name('ordenes.datos.mensuales');
+
+    // Tareas
+    Route::resource('tareas', TareaController::class)->parameters(['tareas' => 'tarea']);
     Route::get('/tareas', [TareaController::class, 'index'])->name('tareas.index');
-
-    Route::resource('tareas', TareaController::class)->parameters([
-        'tareas' => 'tarea'
-    ]);
-
     Route::get('/tareas/crear', [TareaController::class, 'create'])->name('tareas.create');
     Route::post('/tareas', [TareaController::class, 'store'])->name('tareas.store');
 
-    Route::get('/graficas/tareas-por-empleado', [FaltasController::class, 'tareasPorEmpleadoMes']);
-    Route::get('/graficas/ordenes-por-empleado', [FaltasController::class, 'ordenesPorEmpleadoMes']);
-
-    Route::get('/faltas/graficas/tareas-mensuales', [FaltasController::class, 'datosGraficoTareasMes'])
-        ->name('faltas.grafico.tareas-mensuales');
-
-
-    Route::get('/faltas/graficas/ordenes-mensuales', [FaltasController::class, 'ordenesMensualesPorEmpleado']);
+    // Acciones especiales sobre tareas (cronómetro y estado)
+    Route::patch('/tareas/{tarea}/estado', [TareaController::class, 'cambiarEstado'])->name('tareas.cambiarEstado');
+    Route::patch('/tareas/{tarea}/iniciar-cronometro', [TareaController::class, 'iniciarCronometro'])->name('tareas.iniciar');
+    Route::patch('/tareas/{tarea}/finalizar-cronometro', [TareaController::class, 'finalizarCronometro'])->name('tareas.finalizar');
+    Route::post('/tareas/{tarea}/marcar-en-curso', [TareaController::class, 'marcarEnCurso'])->name('tareas.marcarEnCurso');
 });
 
 require __DIR__ . '/auth.php';

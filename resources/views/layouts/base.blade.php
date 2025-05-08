@@ -16,10 +16,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
 
-                <!-- Título -->
-                <a href="{{ route('dashboard') }}" class="text-xl font-bold !text-white hover:underline">
-                    Gestión Taller
-                </a>
+                <!-- Logo y título -->
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('storage/fotos/Recurso 25.png') }}" alt="Logo Tsa" class="h-8">
+                    <img src="{{ asset('storage/fotos/Recurso 33.png') }}" alt="Logo Fistex" class="h-8">
+                </div>
+
+
+
 
 
                 <!-- Menú Empleados -->
@@ -52,10 +56,6 @@
                         <a href="{{ route('tareas.index') }}" class="block px-4 py-2 hover:bg-[#7ebdb3]">Ver tareas por orden</a>
                     </div>
                 </div>
-
-
-
-
 
                 <!-- Usuario -->
                 <div class="text-sm font-medium !text-white flex items-center gap-4">
