@@ -13,8 +13,14 @@
 
     <h2 class="text-2xl font-bold mb-6">Registrar nueva orden</h2>
 
-    <form action="{{ route('ordenes.store') }}" method="POST">
-        @csrf
+    <form action="{{ route('ordenes.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+
+        {{-- Registro de orden --}}
+        <div class="mb-4">
+            <label for="pdf" class="block text-gray-700">Archivo PDF (opcional)</label>
+            <input type="file" name="pdf" id="pdf" accept="application/pdf" class="mt-1 block w-full">
+        </div>
 
         {{-- Vehículo --}}
         <div class="mb-4">

@@ -13,11 +13,17 @@
 
     <h2 class="text-2xl font-bold mb-6">Editar orden: {{ $orden->numero_orden }}</h2>
 
-    <form method="POST" action="{{ route('ordenes.update', $orden) }}">
-        @csrf
+    <form method="POST" action="{{ route('ordenes.update', $orden) }}" enctype="multipart/form-data">
+    @csrf
         @method('PUT')
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {{-- Registro de orden --}}
+            <div class="mb-4">
+                <label for="pdf" class="block text-gray-700">Archivo PDF (opcional)</label>
+                <input type="file" name="pdf" id="pdf" accept="application/pdf" class="mt-1 block w-full">
+            </div>
 
             <div>
                 <label class="block font-semibold">Vehículo</label>

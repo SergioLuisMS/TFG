@@ -32,6 +32,18 @@
         <div class="md:col-span-2"><strong>Descripción / Revisión:</strong><br>{{ $orden->descripcion_revision ?? '-' }}</div>
     </div>
 
+    {{-- Sección para mostrar el PDF si existe --}}
+    <div class="mt-6">
+        <strong>Archivo adjunto:</strong><br>
+        @if ($orden->pdf)
+            <a href="{{ Storage::url($orden->pdf) }}" target="_blank" class="text-blue-600 hover:underline">
+                Ver archivo PDF adjunto
+            </a>
+        @else
+            <p class="text-gray-500">No hay archivo PDF adjunto.</p>
+        @endif
+    </div>
+
     <div class="mt-6">
         <a href="{{ route('ordenes.edit', $orden) }}"
            class="bg-verde hover:bg-azul text-negro font-semibold px-6 py-2 rounded shadow transition">

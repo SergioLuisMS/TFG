@@ -9,6 +9,7 @@ class Orden extends Model
     protected $table = 'ordenes';
 
     protected $fillable = [
+        'pdf', // Ruta del archivo PDF
         'numero_orden', 'fecha_entrada', 'fecha_salida', 'cliente', 'telefono',
         'matricula', 'vehiculo', 'kilometros', 'tipo_intervencion', 'numero_factura',
         'numero_presupuesto', 'numero_resguardo', 'numero_albaran', 'situacion_vehiculo',

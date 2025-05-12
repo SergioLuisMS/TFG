@@ -38,9 +38,10 @@ class OrdenController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación (puedes añadir reglas según los campos requeridos)
+        // Validación (añade tus reglas si es necesario)
         $request->validate([
             // tus campos requeridos aquí
+            'pdf' => 'nullable|mimes:pdf|max:5120', // Opcional, solo PDFs hasta 5MB
         ]);
 
         // Crea una nueva instancia de orden
@@ -54,10 +55,19 @@ class OrdenController extends Controller
 
         // Genera un número de orden con ceros a la izquierda basado en el ID
         $orden->numero_orden = str_pad($orden->id, 6, '0', STR_PAD_LEFT);
+
+        // Si hay un archivo PDF, lo almacenamos y guardamos la ruta en la orden
+        if ($request->hasFile('pdf')) {
+            $path = $request->file('pdf')->store('pdfs', 'public');
+            $orden->pdf = $path;
+        }
+
+        // Guarda nuevamente la orden con el número y el pdf si existe
         $orden->save();
 
         return redirect()->route('ordenes.index')->with('success', 'Orden creada correctamente.');
     }
+
 
     /**
      * Muestra el formulario para editar una orden existente.
@@ -72,11 +82,26 @@ class OrdenController extends Controller
      */
     public function update(Request $request, Orden $orden)
     {
-        // Actualiza todos los campos recibidos del formulario
-        $orden->update($request->all());
+        // Valida los campos que quieres permitir
+        $validated = $request->validate([
+            // tus otros campos aquí, por ejemplo:
+            // 'cliente' => 'required|string|max:255',
+            'pdf' => 'nullable|mimes:pdf|max:5120', // PDF opcional, máximo 5MB
+        ]);
+
+        // Actualiza los campos permitidos
+        $orden->update($validated);
+
+        // Si se ha subido un nuevo PDF, lo almacena y actualiza la ruta
+        if ($request->hasFile('pdf')) {
+            $path = $request->file('pdf')->store('pdfs', 'public');
+            $orden->pdf = $path;
+            $orden->save();
+        }
 
         return redirect()->route('ordenes.index')->with('success', 'Orden actualizada correctamente.');
     }
+
 
     /**
      * Elimina una orden de la base de datos.
