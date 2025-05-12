@@ -26,6 +26,7 @@
                 <th class="border px-4 py-2">Matrícula</th>
                 <th class="border px-4 py-2">Tipo de intervención</th>
                 <th class="border px-4 py-2">Cliente</th>
+                <th class="border px-4 py-2">Fecha de entrada</th> {{-- Nueva columna --}}
             </tr>
         </thead>
         <tbody>
@@ -39,6 +40,7 @@
                 <td class="border px-4 py-2">{{ $orden->matricula ?? '-' }}</td>
                 <td class="border px-4 py-2">{{ $orden->tipo_intervencion ?? '-' }}</td>
                 <td class="border px-4 py-2">{{ $orden->cliente ?? '-' }}</td>
+                <td class="border px-4 py-2">{{ $orden->fecha_entrada ? \Carbon\Carbon::parse($orden->fecha_entrada)->format('d/m/Y') : '-' }}</td> {{-- Nueva celda --}}
             </tr>
             @endforeach
         </tbody>
