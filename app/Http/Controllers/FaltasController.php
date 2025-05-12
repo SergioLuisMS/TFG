@@ -39,11 +39,12 @@ class FaltasController extends Controller
     {
         $fechaHoy = now()->toDateString();
         $idsMarcados = $request->input('faltas', []);
+        $horasEntrada = $request->input('horas_entrada', []);
 
-        // Elimina las faltas anteriores del día para sobrescribirlas
+        // Borrar las faltas anteriores del día
         Falta::where('fecha', $fechaHoy)->delete();
 
-        // Registra las nuevas faltas
+        // Guardar faltas marcadas
         foreach ($idsMarcados as $empleadoId) {
             Falta::create([
                 'empleado_id' => $empleadoId,
@@ -51,8 +52,19 @@ class FaltasController extends Controller
             ]);
         }
 
-        return redirect()->route('asistencias.index')->with('success', 'Faltas guardadas correctamente.');
+        // Registrar las horas reales de entrada para cada empleado que tenga hora introducida
+        foreach ($horasEntrada as $empleadoId => $hora) {
+            if ($hora) {
+                \App\Models\RegistroEntrada::updateOrCreate(
+                    ['empleado_id' => $empleadoId, 'fecha' => $fechaHoy],
+                    ['hora_real_entrada' => $hora]
+                );
+            }
+        }
+
+        return redirect()->route('asistencias.index')->with('success', 'Faltas y entradas guardadas correctamente.');
     }
+
 
     /**
      * Muestra la gráfica de asistencia de un empleado comparada con la media del mes actual.
@@ -194,8 +206,18 @@ class FaltasController extends Controller
 
         return response()->json([
             'meses' => [
-                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                'Enero',
+                'Febrero',
+                'Marzo',
+                'Abril',
+                'Mayo',
+                'Junio',
+                'Julio',
+                'Agosto',
+                'Septiembre',
+                'Octubre',
+                'Noviembre',
+                'Diciembre'
             ],
             'faltas' => $faltasPorMes
         ]);

@@ -27,12 +27,21 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($empleados as $empleado)
-            <label class="flex items-center space-x-2 text-negro">
-                <input type="checkbox" name="faltas[]" value="{{ $empleado->id }}" class="accent-rojo"
+            <div class="flex items-center mb-2">
+                <input type="checkbox" name="faltas[]" value="{{ $empleado->id }}" id="falta_{{ $empleado->id }}"
+                    class="mr-2 falta-checkbox" data-hora="#hora_entrada_{{ $empleado->id }}"
                     {{ in_array($empleado->id, $faltasDeHoy) ? 'checked' : '' }}>
-                <span>{{ $empleado->nombre }} {{ $empleado->primer_apellido }}</span>
-            </label>
+
+                <label for="falta_{{ $empleado->id }}" class="mr-4">{{ $empleado->nombre }}</label>
+
+                <label for="hora_entrada_{{ $empleado->id }}" class="mr-2">Hora entrada:</label>
+                <input type="time" name="horas_entrada[{{ $empleado->id }}]"
+                    id="hora_entrada_{{ $empleado->id }}"
+                    class="border rounded px-2 py-1 hora-entrada">
+            </div>
             @endforeach
+
+
         </div>
 
         <div class="mt-6">
@@ -49,6 +58,28 @@
 
         </div>
     </form>
+
+    <script>
+        document.querySelectorAll('.falta-checkbox').forEach(checkbox => {
+            const horaInput = document.querySelector(checkbox.dataset.hora);
+            if (checkbox.checked) {
+                horaInput.disabled = true;
+                horaInput.classList.add('bg-gray-300', 'cursor-not-allowed');
+            }
+
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    horaInput.disabled = true;
+                    horaInput.classList.add('bg-gray-300', 'cursor-not-allowed');
+                } else {
+                    horaInput.disabled = false;
+                    horaInput.classList.remove('bg-gray-300', 'cursor-not-allowed');
+                }
+            });
+        });
+    </script>
+
+
 
 
 </div>
