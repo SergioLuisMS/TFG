@@ -19,6 +19,7 @@ class Empleado extends Model
     }
 
     protected $fillable = [
+        'hora_entrada_contrato',
         'nombre',
         'alias',
         'nif',

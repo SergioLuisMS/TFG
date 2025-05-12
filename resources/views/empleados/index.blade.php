@@ -26,6 +26,8 @@
                 <th class="px-4 py-2 text-left">Nombre completo</th>
                 <th class="px-4 py-2 text-left">Alias</th>
                 <th class="px-4 py-2 text-left">Teléfono</th>
+                <th class="border px-4 py-2">Hora de entrada</th>
+
             </tr>
         </thead>
         <tbody>
@@ -40,6 +42,10 @@
                 </td>
                 <td class="px-4 py-2">{{ $empleado->alias }}</td>
                 <td class="px-4 py-2">{{ $empleado->telefono ?? $empleado->telefono_movil }}</td>
+                <td class="border px-4 py-2">
+                    {{ $empleado->hora_entrada_contrato ? \Carbon\Carbon::createFromFormat('H:i:s', $empleado->hora_entrada_contrato)->format('H:i') : '-' }}
+                </td>
+
             </tr>
             @endforeach
         </tbody>

@@ -23,6 +23,7 @@ class EmpleadoController extends Controller
     {
         // Validación de los campos del formulario
         $validated = $request->validate([
+            'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
             'nif' => 'nullable|string|max:255',
@@ -81,6 +82,7 @@ class EmpleadoController extends Controller
     {
         // Validación de los campos del formulario
         $validated = $request->validate([
+            'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
             'nif' => 'nullable|string|max:255',

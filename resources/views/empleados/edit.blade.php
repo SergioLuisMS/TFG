@@ -47,6 +47,16 @@
                     class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
             </div>
 
+            <div class="mb-4">
+                <label for="hora_entrada_contrato" class="block text-gray-700">Hora de entrada (Contrato)</label>
+                <input
+                    type="time"
+                    id="hora_entrada_contrato"
+                    name="hora_entrada_contrato"
+                    value="{{ old('hora_entrada_contrato', $empleado->hora_entrada_contrato ?? '') }}"
+                    class="mt-1 block w-full border rounded px-3 py-2">
+            </div>
+
             <div>
                 <label for="telefono" class="block font-medium">Teléfono</label>
                 <input type="text" name="telefono" id="telefono" value="{{ old('telefono', $empleado->telefono) }}"
@@ -166,7 +176,7 @@
         const file = input.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 preview.src = e.target.result;
                 preview.classList.remove('hidden');
             };
