@@ -8,14 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Tarea;
 
-
 class FaltasController extends Controller
 {
+    /**
+     * Muestra la vista de registro diario de faltas con los empleados y días laborables del mes.
+     */
     public function index()
     {
         $empleados = Empleado::all();
         $hoy = Carbon::now();
 
+        // Genera una colección de días laborables del mes actual
         $diasMes = collect();
         $dia = $hoy->copy()->startOfMonth();
         while ($dia->month === $hoy->month) {
@@ -23,17 +26,24 @@ class FaltasController extends Controller
             $dia->addDay();
         }
 
+        // Obtiene las faltas registradas para el día de hoy
         $faltasDeHoy = Falta::where('fecha', $hoy->toDateString())->pluck('empleado_id')->toArray();
 
         return view('faltas.index', compact('empleados', 'diasMes', 'faltasDeHoy'));
     }
 
+    /**
+     * Guarda las faltas seleccionadas para el día actual.
+     */
     public function store(Request $request)
     {
         $fechaHoy = now()->toDateString();
         $idsMarcados = $request->input('faltas', []);
 
+        // Elimina las faltas anteriores del día para sobrescribirlas
         Falta::where('fecha', $fechaHoy)->delete();
+
+        // Registra las nuevas faltas
         foreach ($idsMarcados as $empleadoId) {
             Falta::create([
                 'empleado_id' => $empleadoId,
@@ -44,12 +54,16 @@ class FaltasController extends Controller
         return redirect()->route('asistencias.index')->with('success', 'Faltas guardadas correctamente.');
     }
 
+    /**
+     * Muestra la gráfica de asistencia de un empleado comparada con la media del mes actual.
+     */
     public function grafico(Empleado $empleado)
     {
         $hoy = now();
         $inicio = $hoy->copy()->startOfMonth();
         $fin = $hoy->copy();
 
+        // Calcula los días laborables del mes actual
         $diasLaborables = collect();
         $dia = $inicio->copy();
         while ($dia <= $fin) {
@@ -59,6 +73,7 @@ class FaltasController extends Controller
 
         $totalDias = $diasLaborables->count();
 
+        // Obtiene las fechas en que el empleado ha faltado este mes
         $faltasEmpleado = Falta::where('empleado_id', $empleado->id)
             ->whereBetween('fecha', [$inicio->toDateString(), $fin->toDateString()])
             ->pluck('fecha')->toArray();
@@ -67,6 +82,7 @@ class FaltasController extends Controller
         $totalAsistencias = $totalDias - $totalFaltas;
         $porcentajeEmpleado = $totalDias > 0 ? round(($totalAsistencias / $totalDias) * 100, 2) : 0;
 
+        // Calcula la media general de asistencia del equipo
         $empleados = Empleado::all();
         $porcentajes = $empleados->map(function ($e) use ($inicio, $fin, $totalDias) {
             $faltas = Falta::where('empleado_id', $e->id)
@@ -90,22 +106,28 @@ class FaltasController extends Controller
         ));
     }
 
+    /**
+     * Muestra la vista global con todos los empleados para generar gráficas generales.
+     */
     public function graficasGlobal()
     {
         $empleados = Empleado::all();
         return view('faltas.graficasGlobal', compact('empleados'));
     }
 
+    /**
+     * Devuelve datos en JSON para las gráficas individuales de cada empleado.
+     */
     public function datosGrafico(Empleado $empleado)
     {
         $hoy = now();
-
         $inicioMesActual = $hoy->copy()->startOfMonth();
         $finMesActual = $hoy->copy();
 
         $inicioMesAnterior = $hoy->copy()->subMonth()->startOfMonth();
         $finMesAnterior = $hoy->copy()->subMonth()->endOfMonth();
 
+        // Días laborables del mes actual
         $diasLaborables = collect();
         $dia = $inicioMesActual->copy();
         while ($dia <= $finMesActual) {
@@ -152,7 +174,9 @@ class FaltasController extends Controller
         ]);
     }
 
-    // NUEVO: Devuelve las faltas por mes de enero a diciembre del año actual
+    /**
+     * Devuelve las faltas por mes del año actual para un empleado (enero a diciembre).
+     */
     public function faltasAnuales(Empleado $empleado)
     {
         $faltasPorMes = [];
@@ -170,29 +194,25 @@ class FaltasController extends Controller
 
         return response()->json([
             'meses' => [
-                'Enero',
-                'Febrero',
-                'Marzo',
-                'Abril',
-                'Mayo',
-                'Junio',
-                'Julio',
-                'Agosto',
-                'Septiembre',
-                'Octubre',
-                'Noviembre',
-                'Diciembre'
+                'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
             ],
             'faltas' => $faltasPorMes
         ]);
     }
 
+    /**
+     * Muestra el formulario para asignar una falta manualmente a un empleado.
+     */
     public function crearManual()
     {
         $empleados = Empleado::all();
         return view('faltas.crearManual', compact('empleados'));
     }
 
+    /**
+     * Guarda una falta asignada manualmente, evitando duplicados.
+     */
     public function guardarManual(Request $request)
     {
         $request->validate([
@@ -200,6 +220,7 @@ class FaltasController extends Controller
             'fecha' => 'required|date',
         ]);
 
+        // Evita duplicar la falta si ya existe
         $existe = Falta::where('empleado_id', $request->empleado_id)
             ->where('fecha', $request->fecha)
             ->exists();
@@ -214,6 +235,9 @@ class FaltasController extends Controller
         return redirect()->route('asistencias.index')->with('success', 'Falta asignada correctamente.');
     }
 
+    /**
+     * Devuelve en JSON el total de tareas por empleado en el mes actual.
+     */
     public function tareasPorEmpleadoMes()
     {
         $inicioMes = Carbon::now()->startOfMonth();
@@ -228,6 +252,9 @@ class FaltasController extends Controller
         return response()->json($tareas);
     }
 
+    /**
+     * Devuelve en JSON el total de órdenes distintas por empleado en el mes actual.
+     */
     public function ordenesPorEmpleadoMes()
     {
         $inicioMes = Carbon::now()->startOfMonth();
@@ -242,8 +269,9 @@ class FaltasController extends Controller
         return response()->json($ordenes);
     }
 
-
-
+    /**
+     * Devuelve en JSON el total de tareas por empleado en el mes actual para gráficas.
+     */
     public function datosGraficoTareasMes()
     {
         $inicioMes = Carbon::now()->startOfMonth();
@@ -262,6 +290,9 @@ class FaltasController extends Controller
         ]);
     }
 
+    /**
+     * Devuelve en JSON el total de órdenes únicas por empleado en el mes actual para gráficas.
+     */
     public function ordenesMensualesPorEmpleado()
     {
         $inicioMes = Carbon::now()->startOfMonth();
@@ -277,7 +308,7 @@ class FaltasController extends Controller
         foreach ($empleados as $empleado) {
             $labels[] = $empleado->nombre . ' ' . $empleado->primer_apellido;
 
-            // Distintos orden_id en las tareas de este mes
+            // Calcula el número de órdenes únicas en las tareas de este mes
             $ordenesUnicas = $empleado->tareas->pluck('orden_id')->unique()->count();
 
             $data[] = $ordenesUnicas;

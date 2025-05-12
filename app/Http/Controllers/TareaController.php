@@ -7,47 +7,40 @@ use App\Models\Orden;
 use App\Models\Tarea;
 use Illuminate\Support\Carbon;
 
-
 class TareaController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra el listado de órdenes con sus tareas filtradas por estado si se proporciona.
      */
     public function index(Request $request)
     {
         $estado = $request->get('estado');
+
         $ordenes = Orden::with(['tareas' => function ($query) use ($estado) {
-            if ($estado) $query->where('estado', $estado);
+            if ($estado) {
+                $query->where('estado', $estado);
+            }
         }])->get();
 
         return view('tareas.index', compact('ordenes'));
     }
 
-
-
     /**
-     * Show the form for creating a new resource.
+     * Muestra el formulario para crear una nueva tarea asociada a una orden.
      */
     public function create(Request $request)
     {
         $empleados = \App\Models\Empleado::all();
         $orden = \App\Models\Orden::findOrFail($request->orden);
 
-        return view('tareas.create', [
-            'empleados' => $empleados,
-            'orden' => $orden
-        ]);
+        return view('tareas.create', compact('empleados', 'orden'));
     }
 
-
-
-
     /**
-     * Store a newly created resource in storage.
+     * Almacena una nueva tarea en la base de datos.
      */
     public function store(Request $request)
     {
-
         // Validación de los datos del formulario
         $validated = $request->validate([
             'orden_id' => 'required|exists:ordenes,id',
@@ -61,47 +54,18 @@ class TareaController extends Controller
         // Crear la tarea
         \App\Models\Tarea::create($validated);
 
-        // Redirigir de nuevo al listado de tareas con mensaje de éxito
-        return redirect()
-            ->route('tareas.index')
-            ->with('success', 'Tarea creada correctamente.');
+        return redirect()->route('tareas.index')->with('success', 'Tarea creada correctamente.');
     }
 
-
-
+    // Métodos vacíos generados por el recurso, puedes implementarlos más adelante si los necesitas.
+    public function show(string $id) {}
+    public function edit(string $id) {}
+    public function update(Request $request, string $id) {}
+    public function destroy(string $id) {}
 
     /**
-     * Display the specified resource.
+     * Cambia el estado de una tarea entre Asignada -> En curso -> Finalizada.
      */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
     public function cambiarEstado(Tarea $tarea)
     {
         if ($tarea->estado === 'Asignada') {
@@ -115,7 +79,9 @@ class TareaController extends Controller
         return back()->with('success', 'Estado de la tarea actualizado.');
     }
 
-
+    /**
+     * Inicia el cronómetro de una tarea y la marca como En curso.
+     */
     public function iniciarCronometro(Tarea $tarea)
     {
         $tarea->cronometro_inicio = now();
@@ -125,6 +91,9 @@ class TareaController extends Controller
         return back()->with('success', 'Tarea iniciada');
     }
 
+    /**
+     * Finaliza el cronómetro de una tarea, guarda el tiempo real trabajado y marca como Finalizada.
+     */
     public function finalizarCronometro(Tarea $tarea)
     {
         if ($tarea->cronometro_inicio) {
@@ -141,8 +110,9 @@ class TareaController extends Controller
         return back()->with('success', 'Tarea finalizada');
     }
 
-
-
+    /**
+     * Marca una tarea como En curso e inicia el cronómetro.
+     */
     public function marcarEnCurso(Tarea $tarea)
     {
         $tarea->estado = 'En curso';
@@ -152,6 +122,9 @@ class TareaController extends Controller
         return redirect()->route('tareas.index')->with('success', 'Tarea iniciada.');
     }
 
+    /**
+     * Finaliza una tarea, calcula el tiempo trabajado y actualiza el estado a Finalizada.
+     */
     public function finalizar(Tarea $tarea)
     {
         if ($tarea->cronometro_inicio) {
