@@ -7,6 +7,8 @@ use App\Models\Falta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\Tarea;
+use App\Models\RegistroEntrada;
+
 
 class FaltasController extends Controller
 {
@@ -15,8 +17,15 @@ class FaltasController extends Controller
      */
     public function index()
     {
+
+
         $empleados = Empleado::all();
         $hoy = Carbon::now();
+
+        $horasEntradaDeHoy = \App\Models\RegistroEntrada::where('fecha', $hoy->toDateString())
+            ->pluck('hora_real_entrada', 'empleado_id')
+            ->toArray();
+
 
         // Genera una colección de días laborables del mes actual
         $diasMes = collect();
@@ -29,7 +38,7 @@ class FaltasController extends Controller
         // Obtiene las faltas registradas para el día de hoy
         $faltasDeHoy = Falta::where('fecha', $hoy->toDateString())->pluck('empleado_id')->toArray();
 
-        return view('faltas.index', compact('empleados', 'diasMes', 'faltasDeHoy'));
+        return view('faltas.index', compact('empleados', 'diasMes', 'faltasDeHoy', 'horasEntradaDeHoy'));
     }
 
     /**
@@ -71,6 +80,31 @@ class FaltasController extends Controller
      */
     public function grafico(Empleado $empleado)
     {
+
+        // Obtener registros de entrada del mes actual
+        $registros = RegistroEntrada::where('empleado_id', $empleado->id)
+            ->whereMonth('fecha', now()->month)
+            ->get();
+
+        $horaContrato = $empleado->hora_entrada_contrato
+            ? Carbon::createFromFormat('H:i:s', $empleado->hora_entrada_contrato)
+            : null;
+
+        $totalMinutosRetraso = 0;
+        $diasConRetraso = 0;
+
+        if ($horaContrato && $registros->count() > 0) {
+            foreach ($registros as $registro) {
+                $horaReal = Carbon::createFromFormat('H:i:s', $registro->hora_real_entrada);
+
+                if ($horaReal->gt($horaContrato)) {
+                    $minutosRetraso = $horaContrato->diffInMinutes($horaReal);
+                    $totalMinutosRetraso += $minutosRetraso;
+                    $diasConRetraso++;
+                }
+            }
+        }
+
         $hoy = now();
         $inicio = $hoy->copy()->startOfMonth();
         $fin = $hoy->copy();
@@ -114,7 +148,9 @@ class FaltasController extends Controller
             'totalAsistencias',
             'porcentajeEmpleado',
             'mediaGeneral',
-            'diferencia'
+            'diferencia',
+            'totalMinutosRetraso',
+            'diasConRetraso'
         ));
     }
 
@@ -124,14 +160,103 @@ class FaltasController extends Controller
     public function graficasGlobal()
     {
         $empleados = Empleado::all();
-        return view('faltas.graficasGlobal', compact('empleados'));
+        $empleado = $empleados->first();
+
+        // Valores por defecto si no hay empleados
+        $asistencias = 0;
+        $faltas = 0;
+        $porcentaje = 0;
+        $totalMinutosRetraso = 0;
+        $diasConRetraso = 0;
+
+        if ($empleado) {
+            $hoy = now();
+            $inicioMes = $hoy->copy()->startOfMonth();
+            $finMes = $hoy->copy();
+
+            // Días laborables
+            $diasLaborables = collect();
+            $dia = $inicioMes->copy();
+            while ($dia <= $finMes) {
+                if ($dia->isWeekday()) $diasLaborables->push($dia->toDateString());
+                $dia->addDay();
+            }
+
+            $totalDias = $diasLaborables->count();
+
+            // Faltas del empleado
+            $faltasEmpleado = Falta::where('empleado_id', $empleado->id)
+                ->whereBetween('fecha', [$inicioMes, $finMes])
+                ->pluck('fecha')
+                ->toArray();
+
+            $totalFaltas = count($faltasEmpleado);
+            $asistencias = $totalDias - $totalFaltas;
+            $faltas = $totalFaltas;
+            $porcentaje = $totalDias > 0 ? round(($asistencias / $totalDias) * 100, 2) : 0;
+
+            // Cálculo de retrasos
+            $registros = RegistroEntrada::where('empleado_id', $empleado->id)
+                ->whereMonth('fecha', now()->month)
+                ->get();
+
+            $horaContrato = $empleado->hora_entrada_contrato
+                ? Carbon::createFromFormat('H:i:s', $empleado->hora_entrada_contrato)
+                : null;
+
+            if ($horaContrato) {
+                foreach ($registros as $registro) {
+                    $horaReal = Carbon::createFromFormat('H:i:s', $registro->hora_real_entrada);
+
+                    if ($horaReal->gt($horaContrato)) {
+                        $minutosRetraso = $horaContrato->diffInMinutes($horaReal);
+                        $totalMinutosRetraso += $minutosRetraso;
+                        $diasConRetraso++;
+                    }
+                }
+            }
+        }
+
+        return view('faltas.graficasGlobal', compact(
+            'empleados',
+            'empleado',
+            'asistencias',
+            'faltas',
+            'porcentaje',
+            'totalMinutosRetraso',
+            'diasConRetraso'
+        ));
     }
+
 
     /**
      * Devuelve datos en JSON para las gráficas individuales de cada empleado.
      */
     public function datosGrafico(Empleado $empleado)
     {
+        $registros = RegistroEntrada::where('empleado_id', $empleado->id)
+            ->whereMonth('fecha', now()->month)
+            ->get();
+
+        $horaContrato = $empleado->hora_entrada_contrato
+            ? Carbon::createFromFormat('H:i:s', $empleado->hora_entrada_contrato)
+            : null;
+
+        $totalMinutosRetraso = 0;
+        $diasConRetraso = 0;
+
+        if ($horaContrato && $registros->count() > 0) {
+            foreach ($registros as $registro) {
+                $horaReal = Carbon::createFromFormat('H:i:s', $registro->hora_real_entrada);
+
+                if ($horaReal->gt($horaContrato)) {
+                    $minutosRetraso = $horaContrato->diffInMinutes($horaReal);
+                    $totalMinutosRetraso += $minutosRetraso;
+                    $diasConRetraso++;
+                }
+            }
+        }
+
         $hoy = now();
         $inicioMesActual = $hoy->copy()->startOfMonth();
         $finMesActual = $hoy->copy();
@@ -182,7 +307,10 @@ class FaltasController extends Controller
             'diferenciaPorcentaje' => $diferenciaPorcentaje,
             'foto' => $empleado->foto,
             'diferenciaFaltas' => $faltasAnterior - $totalFaltas,
-            'faltasMesAnterior' => $faltasAnterior
+            'faltasMesAnterior' => $faltasAnterior,
+            'minutosRetraso' => $totalMinutosRetraso,
+            'diasConRetraso' => $diasConRetraso,
+
         ]);
     }
 

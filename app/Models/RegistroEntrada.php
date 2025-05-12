@@ -9,6 +9,9 @@ class RegistroEntrada extends Model
 {
     use HasFactory;
 
+    // Forzar el nombre de la tabla
+    protected $table = 'registros_entrada';
+
     protected $fillable = [
         'empleado_id',
         'fecha',

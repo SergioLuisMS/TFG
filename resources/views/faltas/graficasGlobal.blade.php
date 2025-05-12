@@ -13,7 +13,7 @@
         </svg>
         Volver al dashboard
     </a>
-    
+
     <h2 class="text-2xl font-bold mb-6">Gráficas de asistencia</h2>
 
     {{-- Selector de empleados --}}
@@ -40,9 +40,13 @@
         <p><strong>Asistencias:</strong> <span id="asistencias"></span></p>
         <p><strong>Faltas:</strong> <span id="faltas"></span></p>
         <p><strong>Porcentaje de asistencia:</strong> <span id="porcentaje"></span>%</p>
+        <p><strong>Minutos totales de retraso:</strong> <span id="minutosRetraso"></span> minutos</p>
+        <p><strong>Días con retraso:</strong> <span id="diasRetraso"></span> días</p>
         <p id="comparacion" class="mt-2 text-sm font-semibold"></p>
         <p id="mensaje-mensual" class="text-sm mt-2 font-semibold"></p>
     </div>
+
+
 
     {{-- Gráfico tipo doughnut: asistencia vs faltas --}}
     <div class="w-full max-w-sm mx-auto">
@@ -116,6 +120,8 @@
         document.getElementById('asistencias').textContent = data.asistencias;
         document.getElementById('faltas').textContent = data.faltas;
         document.getElementById('porcentaje').textContent = data.porcentaje;
+        document.getElementById('minutosRetraso').textContent = data.minutosRetraso;
+        document.getElementById('diasRetraso').textContent = data.diasConRetraso;
 
         // Comparativa con media general
         const comparacionText = document.getElementById('comparacion');

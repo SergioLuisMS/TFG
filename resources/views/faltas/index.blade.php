@@ -35,9 +35,12 @@
                 <label for="falta_{{ $empleado->id }}" class="mr-4">{{ $empleado->nombre }}</label>
 
                 <label for="hora_entrada_{{ $empleado->id }}" class="mr-2">Hora entrada:</label>
-                <input type="time" name="horas_entrada[{{ $empleado->id }}]"
+                <input type="time"
+                    name="horas_entrada[{{ $empleado->id }}]"
                     id="hora_entrada_{{ $empleado->id }}"
+                    value="{{ $horasEntradaDeHoy[$empleado->id] ?? '' }}"
                     class="border rounded px-2 py-1 hora-entrada">
+
             </div>
             @endforeach
 
