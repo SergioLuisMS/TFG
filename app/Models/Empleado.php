@@ -36,5 +36,6 @@ class Empleado extends Model
         'email',
         'bloqueado',
         'observaciones',
+        'foto',
     ];
 }

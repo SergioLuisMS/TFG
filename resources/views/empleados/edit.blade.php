@@ -17,8 +17,31 @@
         @method('PUT')
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="mb-4">
+
+                @if ($empleado->foto)
+                <div class="relative group w-32 h-32 rounded-full overflow-hidden shadow mb-2">
+                    <img id="preview" src="{{ asset('storage/' . $empleado->foto) }}" alt="Foto actual" class="w-full h-full object-cover">
+
+                    {{-- Capa al pasar el ratón --}}
+                    <label for="foto" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                        <span class="text-white text-sm">Cambiar foto</span>
+                    </label>
+
+                </div>
+                @else
+                <img id="preview" src="" alt="Previsualización" class="hidden mt-2 w-32 h-32 rounded-full object-cover">
+                @endif
+
+                <input type="file" name="foto" id="foto" accept="image/*" onchange="mostrarPrevisualizacion()" class="hidden">
+                </div>
+
+
+
+
+
             <div>
-                <label for="nombre" class="block font-medium">Nombre *</label>
+                <label for=" nombre" class="block font-medium">Nombre *</label>
                 <input type="text" name="nombre" id="nombre" required value="{{ old('nombre', $empleado->nombre) }}"
                     class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
             </div>
@@ -123,51 +146,19 @@
                     class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro">{{ old('observaciones', $empleado->observaciones) }}</textarea>
             </div>
 
-            {{-- FOTO --}}
-            <div class="col-span-1 md:col-span-2">
-                <label for="foto" class="block font-medium">Foto de perfil</label>
 
-                @if ($empleado->foto)
-                <div class="w-32 h-32 rounded-full overflow-hidden shadow mb-2">
-                    <img src="{{ asset('storage/' . $empleado->foto) }}" alt="Foto actual"
-                        class="w-full h-full object-cover">
-                </div>
-                @endif
 
-                <input type="file" name="foto" id="foto" accept="image/*"
-                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-
-            </div>
-
-            <div class="col-span-1 md:col-span-2 mb-2">
-                <div class="w-48 h-48 mx-auto overflow-hidden rounded-full border border-gray-300 shadow">
-                    <img id="preview" class="object-cover w-full h-full hidden" alt="Previsualización">
-                </div>
-            </div>
-
-            <div class="text-center col-span-1 md:col-span-2 mb-4">
-                <button type="button"
-                    onclick="recortarImagen()"
-                    class="bg-verde hover:bg-azul text-negro px-4 py-2 rounded-lg font-semibold shadow transition">
-                    Usar esta imagen
+            <div class="mt-6">
+                <button type="submit"
+                    class="bg-azul hover:bg-granate text-white px-6 py-2 rounded-lg font-semibold shadow transition">
+                    Actualizar empleado
                 </button>
-                <input type="hidden" name="imagen_crop" id="imagen_crop">
             </div>
-        </div>
-
-        <div class="mt-6">
-            <button type="submit"
-                class="bg-azul hover:bg-granate text-white px-6 py-2 rounded-lg font-semibold shadow transition">
-                Actualizar empleado
-            </button>
-        </div>
     </form>
 </div>
 @endsection
 
 @push('scripts')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.css" />
-<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
 
 <script>
     function mostrarPrevisualizacion() {

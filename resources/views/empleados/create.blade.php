@@ -18,6 +18,12 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {{-- Campos principales --}}
+
+            <div class="mb-4">
+                <label for="foto" class="block text-gray-700">Foto de perfil</label>
+                <input type="file" name="foto" id="foto" accept="image/*" class="mt-1 block w-full border rounded px-3 py-2">
+            </div>
+
             <div>
                 <label for="nombre" class="block font-medium">Nombre *</label>
                 <input type="text" name="nombre" id="nombre" required class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
@@ -109,25 +115,7 @@
                 <textarea name="observaciones" id="observaciones" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
             </div>
 
-            {{-- Foto de perfil --}}
-            <div class="col-span-1 md:col-span-2">
-                <label for="foto" class="block font-medium">Foto de perfil</label>
-                <input type="file" name="foto" id="foto" accept="image/*" onchange="mostrarPrevisualizacion()" class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
-            </div>
 
-            {{-- Vista previa --}}
-            <div class="my-4">
-                <div class="w-48 h-48 mx-auto overflow-hidden rounded-full border border-gray-300 shadow">
-                    <img id="preview" class="object-cover w-full h-full hidden" alt="Previsualización">
-                </div>
-            </div>
-
-            {{-- Botón para aplicar recorte (opcional, desactivado si ya no usas crop) --}}
-            <div class="text-center">
-                <button type="button" onclick="recortarImagen()" class="bg-verde hover:bg-azul text-negro px-4 py-2 rounded-lg font-semibold shadow transition">
-                    Usar esta imagen
-                </button>
-            </div>
 
             {{-- Campo oculto que contendría la imagen recortada --}}
             <input type="hidden" name="imagen_crop" id="imagen_crop">

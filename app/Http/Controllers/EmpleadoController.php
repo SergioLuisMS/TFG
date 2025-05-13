@@ -21,7 +21,6 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación de los campos del formulario
         $validated = $request->validate([
             'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
@@ -43,20 +42,18 @@ class EmpleadoController extends Controller
             'foto' => 'nullable|image|max:2048', // Máximo 2MB
         ]);
 
-        // Si se ha subido una foto, la almacenamos en storage/app/public/fotos
         if ($request->hasFile('foto')) {
+            // Guarda la foto en storage/app/public/fotos
             $validated['foto'] = $request->file('foto')->store('fotos', 'public');
         }
 
-        // Convertimos el checkbox 'bloqueado' en un valor booleano
         $validated['bloqueado'] = $request->has('bloqueado');
 
-        // Creamos el empleado en la base de datos
         Empleado::create($validated);
 
-        // Redirigimos al listado de empleados con un mensaje de éxito
         return redirect()->route('empleados.index')->with('success', 'Empleado registrado correctamente');
     }
+
 
     /**
      * Muestra el listado de empleados.
@@ -80,7 +77,8 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request, Empleado $empleado)
     {
-        // Validación de los campos del formulario
+        
+
         $validated = $request->validate([
             'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
@@ -99,21 +97,27 @@ class EmpleadoController extends Controller
             'email' => 'nullable|email|max:255',
             'bloqueado' => 'nullable|boolean',
             'observaciones' => 'nullable|string',
-            'foto' => 'nullable|image|max:2048', // Máximo 2MB
+            'foto' => 'nullable|image|max:2048',
         ]);
 
-        // Si se ha subido una nueva foto, la almacenamos en storage/app/public/fotos
+        // Actualiza el modelo con todos los campos validados
+        $empleado->fill($validated);
+
+        // Asegura el valor del checkbox
+        $empleado->bloqueado = $request->has('bloqueado');
+
+        // Procesa la foto si viene en la solicitud
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('fotos', 'public');
+            if ($empleado->foto && Storage::disk('public')->exists($empleado->foto)) {
+                Storage::disk('public')->delete($empleado->foto);
+            }
+
+            $empleado->foto = $request->file('foto')->store('fotos', 'public');
         }
 
-        // Convertimos el checkbox 'bloqueado' en un valor booleano
-        $validated['bloqueado'] = $request->has('bloqueado');
+        // Guarda todo, incluyendo la foto
+        $empleado->save();
 
-        // Actualizamos el empleado en la base de datos
-        $empleado->update($validated);
-
-        // Redirigimos al listado de empleados con un mensaje de éxito
         return redirect()->route('empleados.index')->with('success', 'Empleado actualizado correctamente.');
     }
 }
