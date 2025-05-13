@@ -38,35 +38,46 @@ class OrdenController extends Controller
      */
     public function store(Request $request)
     {
-        // Validación (añade tus reglas si es necesario)
-        $request->validate([
-            // tus campos requeridos aquí
-            'pdf' => 'nullable|mimes:pdf|max:5120', // Opcional, solo PDFs hasta 5MB
+
+        // Validar los campos que están en el fillable
+        $validated = $request->validate([
+            'fecha_entrada' => 'required|date_format:Y-m-d\TH:i',
+            'fecha_salida' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:fecha_entrada',
+            'cliente' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'matricula' => 'required|string|max:50',
+            'vehiculo' => 'nullable|string|max:255',
+            'kilometros' => 'nullable|string|max:50',
+            'tipo_intervencion' => 'nullable|string|max:255',
+            'numero_factura' => 'nullable|string|max:255',
+            'numero_presupuesto' => 'nullable|string|max:255',
+            'numero_resguardo' => 'nullable|string|max:255',
+            'numero_albaran' => 'nullable|string|max:255',
+            'situacion_vehiculo' => 'nullable|string|max:255',
+            'proxima_itv' => 'nullable|date',
+            'numero_bastidor' => 'nullable|string|max:255',
+            'descripcion_revision' => 'nullable|string|max:5000',
+            'pdf' => 'nullable|mimes:pdf|max:5120',
         ]);
 
-        // Crea una nueva instancia de orden
-        $orden = new Orden();
 
-        // Aquí podrías asignar otros campos del request, por ejemplo:
-        // $orden->cliente = $request->cliente;
+        // Crear la orden con los campos validados
+        $orden = Orden::create($validated);
 
-        // Guarda la orden para obtener su ID
-        $orden->save();
-
-        // Genera un número de orden con ceros a la izquierda basado en el ID
+        // Generar el número de orden
         $orden->numero_orden = str_pad($orden->id, 6, '0', STR_PAD_LEFT);
 
-        // Si hay un archivo PDF, lo almacenamos y guardamos la ruta en la orden
+        // Procesar el PDF si se ha subido
         if ($request->hasFile('pdf')) {
-            $path = $request->file('pdf')->store('pdfs', 'public');
-            $orden->pdf = $path;
+            $orden->pdf = $request->file('pdf')->store('pdfs', 'public');
         }
 
-        // Guarda nuevamente la orden con el número y el pdf si existe
+        // Guardar los cambios
         $orden->save();
 
         return redirect()->route('ordenes.index')->with('success', 'Orden creada correctamente.');
     }
+
 
 
     /**
