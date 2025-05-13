@@ -44,8 +44,10 @@
         <div class="mb-4">
             <label for="fecha_inicio" class="block font-semibold">Fecha de inicio</label>
             <input type="date" name="fecha_inicio" id="fecha_inicio" required
+                value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}"
                 class="w-full border rounded px-3 py-2">
         </div>
+
 
         {{-- Fecha de fin --}}
         <div class="mb-4">
