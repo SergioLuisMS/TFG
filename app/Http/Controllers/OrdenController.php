@@ -102,20 +102,30 @@ class OrdenController extends Controller
      */
     public function update(Request $request, Orden $orden)
     {
-        // Valida los campos que quieres permitir
         $validated = $request->validate([
-            // tus otros campos aquí, por ejemplo:
-            // 'cliente' => 'required|string|max:255',
-            'pdf' => 'nullable|mimes:pdf|max:5120', // PDF opcional, máximo 5MB
+            'fecha_entrada' => 'required|date_format:Y-m-d\TH:i',
+            'fecha_salida' => 'nullable|date_format:Y-m-d\TH:i|after_or_equal:fecha_entrada',
+            'cliente' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'matricula' => 'required|string|max:50',
+            'vehiculo' => 'nullable|string|max:255',
+            'kilometros' => 'nullable|string|max:50',
+            'tipo_intervencion' => 'nullable|string|max:255',
+            'numero_factura' => 'nullable|string|max:255',
+            'numero_presupuesto' => 'nullable|string|max:255',
+            'numero_resguardo' => 'nullable|string|max:255',
+            'numero_albaran' => 'nullable|string|max:255',
+            'situacion_vehiculo' => 'nullable|string|max:255',
+            'proxima_itv' => 'nullable|date',
+            'numero_bastidor' => 'nullable|string|max:255',
+            'descripcion_revision' => 'nullable|string|max:5000',
+            'pdf' => 'nullable|mimes:pdf|max:5120',
         ]);
 
-        // Actualiza los campos permitidos
         $orden->update($validated);
 
-        // Si se ha subido un nuevo PDF, lo almacena y actualiza la ruta
         if ($request->hasFile('pdf')) {
-            $path = $request->file('pdf')->store('pdfs', 'public');
-            $orden->pdf = $path;
+            $orden->pdf = $request->file('pdf')->store('pdfs', 'public');
             $orden->save();
         }
 
