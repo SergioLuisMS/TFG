@@ -135,4 +135,21 @@ class TareaController extends Controller
 
         return redirect()->route('tareas.index')->with('success', 'Tarea finalizada.');
     }
+
+    public function actualizarTiempo(Request $request, Tarea $tarea)
+{
+    $request->validate([
+        'tiempo_real' => 'required|regex:/^\d{1,2}:\d{2}:\d{2}$/'
+    ]);
+
+
+    list($horas, $minutos, $segundos) = explode(':', $request->tiempo_real);
+    $totalSegundos = ($horas * 3600) + ($minutos * 60) + $segundos;
+
+    $tarea->tiempo_real = $totalSegundos;
+    $tarea->save();
+
+    return back()->with('success', 'Tiempo actualizado correctamente.');
+}
+
 }
