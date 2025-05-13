@@ -29,12 +29,13 @@ class TareaController extends Controller
      * Muestra el formulario para crear una nueva tarea asociada a una orden.
      */
     public function create(Request $request)
-    {
-        $empleados = \App\Models\Empleado::all();
-        $orden = \App\Models\Orden::findOrFail($request->orden);
+{
+    $empleados = \App\Models\Empleado::all();
+    $orden = \App\Models\Orden::findOrFail($request->orden);
 
-        return view('tareas.create', compact('empleados', 'orden'));
-    }
+    return view('tareas.create', compact('empleados', 'orden'));
+}
+
 
     /**
      * Almacena una nueva tarea en la base de datos.

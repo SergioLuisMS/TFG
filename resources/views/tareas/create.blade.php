@@ -60,7 +60,7 @@
         <div class="mb-4">
             <label for="descripcion" class="block font-semibold">Descripción de la tarea</label>
             <textarea name="descripcion" id="descripcion" rows="3"
-                class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro">{{ old('descripcion', $orden->descripcion ?? '') }}</textarea>
+                class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro">{{ old('descripcion', $orden->descripcion_revision ?? '') }}</textarea>
 
         </div>
 
