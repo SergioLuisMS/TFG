@@ -54,7 +54,10 @@
         <div class="mb-4">
             <label for="fecha_entrada" class="block font-medium">Fecha de entrada</label>
             <input type="datetime-local" name="fecha_entrada" id="fecha_entrada"
+                value="{{ \Carbon\Carbon::now()->format('Y-m-d\TH:i') }}"
                 class="w-full border border-gray-300 rounded px-3 py-2 mt-1" />
+
+
         </div>
 
         {{-- Fecha salida --}}
