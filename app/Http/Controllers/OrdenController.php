@@ -11,11 +11,20 @@ class OrdenController extends Controller
     /**
      * Muestra el listado de todas las órdenes.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $ordenes = Orden::all();
+        $query = Orden::query();
+
+        // Si el usuario seleccionó un campo para ordenar
+        if ($request->filled('ordenar_por')) {
+            $query->orderByDesc($request->ordenar_por);
+        }
+
+        $ordenes = $query->get();
+
         return view('ordenes.index', compact('ordenes'));
     }
+
 
     /**
      * Muestra el detalle de una orden específica.

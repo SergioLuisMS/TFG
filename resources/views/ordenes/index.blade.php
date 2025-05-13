@@ -11,6 +11,18 @@
         Volver al dashboard
     </a>
 
+    <form method="GET" action="{{ route('ordenes.index') }}" class="mb-4">
+        <label for="ordenar_por" class="mr-2 font-semibold">Ordenar por:</label>
+        <select name="ordenar_por" id="ordenar_por" onchange="this.form.submit()" class="border rounded px-2 py-1">
+            <option value="">-- Seleccionar --</option>
+            <option value="numero_orden" {{ request('ordenar_por') == 'numero_orden' ? 'selected' : '' }}>Número de Orden</option>
+            <option value="fecha_entrada" {{ request('ordenar_por') == 'fecha_entrada' ? 'selected' : '' }}>Fecha de Entrada</option>
+            <option value="cliente" {{ request('ordenar_por') == 'cliente' ? 'selected' : '' }}>Cliente</option>
+            <option value="matricula" {{ request('ordenar_por') == 'matricula' ? 'selected' : '' }}>Matrícula</option>
+        </select>
+    </form>
+
+
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold">Listado de órdenes</h2>
         <a href="{{ route('ordenes.create') }}"
