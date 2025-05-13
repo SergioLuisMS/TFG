@@ -84,7 +84,7 @@ class OrdenController extends Controller
         // Guardar los cambios
         $orden->save();
 
-        return redirect()->route('ordenes.index')->with('success', 'Orden creada correctamente.');
+        return redirect()->route('ordenes.index', request()->query())->with('success', 'Orden actualizada correctamente.');
     }
 
 
@@ -129,7 +129,7 @@ class OrdenController extends Controller
             $orden->save();
         }
 
-        return redirect()->route('ordenes.index')->with('success', 'Orden actualizada correctamente.');
+        return redirect()->route('ordenes.index', request()->query())->with('success', 'Orden actualizada correctamente.');
     }
 
 
@@ -139,7 +139,7 @@ class OrdenController extends Controller
     public function destroy(Orden $orden)
     {
         $orden->delete();
-        return redirect()->route('ordenes.index')->with('success', 'Orden eliminada correctamente.');
+        return redirect()->route('ordenes.index', request()->query())->with('success', 'Orden actualizada correctamente.');
     }
 
     /**
