@@ -1,4 +1,4 @@
-@extends('layouts.limbo')
+@extends('layouts.public')
 
 @section('content')
     <h1 class="text-2xl font-bold mb-4">Tu cuenta está pendiente de activación</h1>

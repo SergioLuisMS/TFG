@@ -10,15 +10,39 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\VerificarRol;
 use App\Http\Middleware\AdminOnly;
+use App\Http\Controllers\EmpleadoDashboardController;
+use Illuminate\Support\Facades\Auth;
 
 Route::resourceVerbs(['create' => 'crear', 'edit' => 'editar']);
 Str::singular('ordenes');
 
 Route::get('/', fn () => redirect()->route('dashboard'));
 
-Route::get('/dashboard', fn () => view('dashboard'))
-    ->middleware(['auth', 'verified', \App\Http\Middleware\VerificarRol::class])
-    ->name('dashboard');
+Route::get('/dashboard', function () {
+    $user = Auth::user();
+
+    if ($user?->rol === 'empleado') {
+        return redirect()->route('empleado.dashboard');
+    }
+
+    if ($user?->rol === 'admin') {
+        return view('dashboard');
+    }
+
+    // Por si algún usuario llega aquí sin rol, lo mandamos al limbo
+    return view('limbo');
+})->middleware(['auth', 'verified', \App\Http\Middleware\VerificarRol::class])
+  ->name('dashboard');
+
+
+  Route::middleware(['auth', \App\Http\Middleware\VerificarRol::class])->group(function () {
+    Route::get('/dashboard-empleado', function () {
+        return view('empleado.dashboard');
+    })->name('empleado.dashboard');
+
+    // Nueva ruta para gestionar tareas del empleado
+    Route::get('/tus-tareas', [EmpleadoDashboardController::class, 'tareas'])->name('empleado.tareas');
+});
 
 
 // Bloquea TODO el sistema solo para admin
