@@ -43,6 +43,18 @@
                     </div>
                 </div>
 
+                <div x-data="{ open: false }" class="relative">
+                    <button @click="open = !open" class="!text-white bg-[#872829] px-4 py-2 rounded hover:bg-[#d23e5d] transition">
+                        Usuarios ▾
+                    </button>
+
+                    <div x-show="open" @click.away="open = false" x-transition
+                        class="absolute mt-2 w-56 bg-white text-[#1d1d1b] rounded shadow-lg z-50">
+                        <a href="{{ route('usuarios.pendientes') }}" class="block px-4 py-2 hover:bg-[#7ebdb3]">Gestionar Roles</a>
+                    </div>
+                </div>
+
+
                 {{-- Dropdown para Órdenes con Alpine.js --}}
                 <div x-data="{ openOrdenes: false }" class="relative">
                     <button @click="openOrdenes = !openOrdenes" class="!text-white bg-[#317080] px-4 py-2 rounded hover:bg-[#7ebdb3] transition">
