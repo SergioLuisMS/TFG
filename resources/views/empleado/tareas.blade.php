@@ -1,4 +1,4 @@
-@extends('layouts.empleado')
+@extends('layouts.empleado' , ['noSplash' => true])
 
 @section('content')
 

@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel del Empleado</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         #splash {
             position: fixed;
             top: 0;
@@ -21,7 +30,10 @@
         }
 
         @keyframes fadeOut {
-            to { opacity: 0; visibility: hidden; }
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
         }
 
         #splash img {
@@ -30,23 +42,36 @@
         }
 
         @keyframes pop {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
     </style>
 </head>
-<body class="bg-[#f5f5f5] text-[#1d1d1b] font-sans antialiased">
+
+<body class="bg-[#f5f5f5] text-[#1d1d1b] font-sans antialiased flex flex-col min-h-screen">
 
     <!-- Splash Animation -->
+    @if (!isset($noSplash))
     <div id="splash">
         <img src="{{ asset('storage/fotos/Recurso 25.png') }}" alt="Logo Tsa">
     </div>
+    @endif
 
     <!-- Navbar exclusivo para empleados -->
-    <nav class="bg-[#1d1d1b] border-b border-[#317080] shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
+    <nav class="bg-[#1d1d1b] border-b border-[#317080] shadow h-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
                 <div class="flex items-center gap-4">
                     <img src="{{ asset('storage/fotos/Recurso 25.png') }}" alt="Logo Tsa" class="h-8">
                     <img src="{{ asset('storage/fotos/Recurso 33.png') }}" alt="Logo Fistex" class="h-8">
@@ -74,10 +99,12 @@
     </nav>
 
     <!-- CONTENIDO -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex flex-1 items-center justify-center">
         @yield('content')
     </main>
 
     @stack('scripts')
 </body>
+
+
 </html>
