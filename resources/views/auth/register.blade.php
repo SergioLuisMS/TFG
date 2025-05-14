@@ -1,4 +1,4 @@
-@extends('layouts.base')
+@extends('layouts.public')
 
 @section('content')
 
@@ -42,7 +42,7 @@
             <button type="submit" class="w-full bg-[#872829] text-white py-2 rounded hover:bg-[#d23esd] transition duration-300">
                 Registrarse
             </button>
-            
+
 
             <p class="mt-4 text-center text-sm text-white">
                 ¿Ya tienes cuenta?

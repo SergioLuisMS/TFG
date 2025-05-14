@@ -17,9 +17,8 @@ class VerificarRol
     {
         $user = $request->user();
 
-        // Si no tiene rol, bloquear acceso y mostrar mensaje
-        if (is_null($user->rol)) {
-            abort(403, 'Tu cuenta aún no ha sido activada por un administrador.');
+        if (!$user || is_null($user->rol)) {
+            return response()->view('limbo');
         }
 
         return $next($request);

@@ -17,8 +17,9 @@ Str::singular('ordenes');
 Route::get('/', fn () => redirect()->route('dashboard'));
 
 Route::get('/dashboard', fn () => view('dashboard'))
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', \App\Http\Middleware\VerificarRol::class])
     ->name('dashboard');
+
 
 // Bloquea TODO el sistema solo para admin
 Route::middleware(['auth', VerificarRol::class, AdminOnly::class])->group(function () {
