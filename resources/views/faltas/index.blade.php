@@ -62,6 +62,8 @@
         </div>
     </form>
 
+    
+
     <script>
         document.querySelectorAll('.falta-checkbox').forEach(checkbox => {
             const horaInput = document.querySelector(checkbox.dataset.hora);

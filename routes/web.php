@@ -12,6 +12,8 @@ use App\Http\Middleware\VerificarRol;
 use App\Http\Middleware\AdminOnly;
 use App\Http\Controllers\EmpleadoDashboardController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\HoldedController;
+
 
 Route::resourceVerbs(['create' => 'crear', 'edit' => 'editar']);
 Str::singular('ordenes');
@@ -95,6 +97,11 @@ Route::middleware(['auth', VerificarRol::class, AdminOnly::class])->group(functi
     Route::patch('/tareas/{tarea}/finalizar-cronometro', [TareaController::class, 'finalizarCronometro'])->name('tareas.finalizar');
     Route::post('/tareas/{tarea}/marcar-en-curso', [TareaController::class, 'marcarEnCurso'])->name('tareas.marcarEnCurso');
     Route::post('/tareas/{tarea}/actualizar-tiempo', [TareaController::class, 'actualizarTiempo'])->name('tareas.actualizarTiempo');
+
+    Route::patch('/registro-entrada/{id}/actualizar-hora', [FaltasController::class, 'actualizarHora'])->name('registroEntrada.actualizarHora');
+
+    Route::get('/holded/buscar-contacto', [HoldedController::class, 'buscarContacto']);
+
 });
 
 // Rutas de login, registro, etc.

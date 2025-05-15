@@ -38,7 +38,9 @@ class FaltasController extends Controller
         // Obtiene las faltas registradas para el día de hoy
         $faltasDeHoy = Falta::where('fecha', $hoy->toDateString())->pluck('empleado_id')->toArray();
 
-        return view('faltas.index', compact('empleados', 'diasMes', 'faltasDeHoy', 'horasEntradaDeHoy'));
+        $registros = RegistroEntrada::with('empleado')->orderBy('fecha', 'desc')->get();
+
+        return view('faltas.index', compact('empleados', 'diasMes', 'faltasDeHoy', 'horasEntradaDeHoy', 'registros'));
     }
 
     /**
@@ -468,5 +470,18 @@ class FaltasController extends Controller
             'labels' => $labels,
             'data' => $data,
         ]);
+    }
+
+    public function actualizarHora(Request $request, $id)
+    {
+        $request->validate([
+            'hora_entrada' => 'required|date_format:H:i',
+        ]);
+
+        $registro = RegistroEntrada::findOrFail($id);
+        $registro->hora_entrada = $request->hora_entrada;
+        $registro->save();
+
+        return back()->with('success', 'Hora actualizada correctamente.');
     }
 }
