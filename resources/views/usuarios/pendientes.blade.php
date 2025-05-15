@@ -9,6 +9,7 @@
     </svg>
     Volver al dashboard
 </a>
+
 <div class="bg-white p-6 rounded shadow-md">
     <h2 class="text-2xl font-bold mb-4">Usuarios pendientes de activación</h2>
 
@@ -19,7 +20,7 @@
     @endif
 
     @if ($usuarios->isEmpty())
-    <p>No hay usuarios pendientes de activación.</p>
+        <p>No hay usuarios pendientes de activación.</p>
     @else
     <table class="w-full table-auto border-collapse border border-gray-300">
         <thead>
@@ -34,20 +35,25 @@
         </thead>
         <tbody>
             @foreach ($usuarios as $usuario)
-            <tr>
+            <tr x-data="{ rol: 'empleado' }">
                 <td class="border px-4 py-2">{{ $usuario->id }}</td>
                 <td class="border px-4 py-2">{{ $usuario->name }}</td>
                 <td class="border px-4 py-2">{{ $usuario->email }}</td>
+
                 <td class="border px-4 py-2">
                     <form action="{{ route('usuarios.asignarRol', $usuario) }}" method="POST">
                         @csrf
-                        <select name="rol" class="border rounded px-2 py-1 w-full">
+                        <select name="rol" class="border rounded px-2 py-1 w-full" x-model="rol">
                             <option value="admin">Administrador</option>
                             <option value="empleado">Empleado</option>
                         </select>
                 </td>
+
                 <td class="border px-4 py-2">
-                    <select name="empleado_id" class="border rounded px-2 py-1 w-full">
+                    <select name="empleado_id"
+                        :disabled="rol == 'admin'"
+                        :class="{ 'bg-gray-200 cursor-not-allowed': rol == 'admin' }"
+                        class="border rounded px-2 py-1 w-full">
                         <option value="">-- Ninguno --</option>
                         @foreach ($empleados as $empleado)
                         <option value="{{ $empleado->id }}">
@@ -56,6 +62,7 @@
                         @endforeach
                     </select>
                 </td>
+
                 <td class="border px-4 py-2">
                     <button type="submit" class="bg-azul hover:bg-granate text-white px-3 py-1 rounded">
                         Asignar
