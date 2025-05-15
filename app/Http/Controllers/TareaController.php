@@ -29,12 +29,12 @@ class TareaController extends Controller
      * Muestra el formulario para crear una nueva tarea asociada a una orden.
      */
     public function create(Request $request)
-{
-    $empleados = \App\Models\Empleado::all();
-    $orden = \App\Models\Orden::findOrFail($request->orden);
+    {
+        $empleados = \App\Models\Empleado::all();
+        $orden = \App\Models\Orden::findOrFail($request->orden);
 
-    return view('tareas.create', compact('empleados', 'orden'));
-}
+        return view('tareas.create', compact('empleados', 'orden'));
+    }
 
 
     /**
@@ -126,31 +126,44 @@ class TareaController extends Controller
     /**
      * Finaliza una tarea, calcula el tiempo trabajado y actualiza el estado a Finalizada.
      */
-    public function finalizar(Tarea $tarea)
-    {
-        if ($tarea->cronometro_inicio) {
-            $tarea->tiempo_real = now()->diffInSeconds(Carbon::parse($tarea->cronometro_inicio));
-        }
-        $tarea->estado = 'Finalizada';
-        $tarea->save();
-
-        return redirect()->route('tareas.index')->with('success', 'Tarea finalizada.');
-    }
-
-    public function actualizarTiempo(Request $request, Tarea $tarea)
+    public function finalizar(Request $request, Tarea $tarea)
 {
-    $request->validate([
-        'tiempo_real' => 'required|regex:/^\d{1,2}:\d{2}:\d{2}$/'
-    ]);
-
-
-    list($horas, $minutos, $segundos) = explode(':', $request->tiempo_real);
-    $totalSegundos = ($horas * 3600) + ($minutos * 60) + $segundos;
-
-    $tarea->tiempo_real = $totalSegundos;
+    $tarea->tiempo_real = $request->input('tiempo_real');
+    $tarea->estado = 'Finalizada';
+    $tarea->cronometro_inicio = null; // Detener cronómetro
     $tarea->save();
 
-    return back()->with('success', 'Tiempo actualizado correctamente.');
+    return response()->json(['success' => true]);
 }
 
+
+    public function actualizarTiempo(Request $request, Tarea $tarea)
+    {
+        $request->validate([
+            'tiempo_real' => 'required|regex:/^\d{1,2}:\d{2}:\d{2}$/'
+        ]);
+
+
+        list($horas, $minutos, $segundos) = explode(':', $request->tiempo_real);
+        $totalSegundos = ($horas * 3600) + ($minutos * 60) + $segundos;
+
+        $tarea->tiempo_real = $totalSegundos;
+        $tarea->save();
+
+        return back()->with('success', 'Tiempo actualizado correctamente.');
+    }
+
+    public function guardarTiempo(Request $request, $id)
+    {
+        $request->validate([
+            'tiempo_real' => 'required|integer', // tiempo en segundos
+        ]);
+
+        $tarea = Tarea::findOrFail($id);
+        $tarea->tiempo_real = $request->tiempo_real;
+        $tarea->cronometro_inicio = null; // IMPORTANTE: anular cronómetro al pausar
+        $tarea->save();
+
+        return response()->json(['success' => true, 'mensaje' => 'Tiempo actualizado y cronómetro pausado.']);
+    }
 }

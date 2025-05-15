@@ -3,6 +3,12 @@
 @section('content')
 <div class="flex flex-col items-center justify-center text-center">
 
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
+
     {{-- Foto del empleado --}}
     @if (Auth::user()->empleado && Auth::user()->empleado->foto)
     <img src="{{ asset('storage/' . Auth::user()->empleado->foto) }}" alt="Foto de perfil"

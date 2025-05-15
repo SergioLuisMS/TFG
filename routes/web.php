@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 Route::resourceVerbs(['create' => 'crear', 'edit' => 'editar']);
 Str::singular('ordenes');
 
-Route::get('/', fn () => redirect()->route('dashboard'));
+Route::get('/', fn() => redirect()->route('dashboard'));
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -32,13 +32,20 @@ Route::get('/dashboard', function () {
     // Por si algún usuario llega aquí sin rol, lo mandamos al limbo
     return view('limbo');
 })->middleware(['auth', 'verified', \App\Http\Middleware\VerificarRol::class])
-  ->name('dashboard');
+    ->name('dashboard');
 
 
-  Route::middleware(['auth', \App\Http\Middleware\VerificarRol::class])->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\VerificarRol::class])->group(function () {
     Route::get('/dashboard-empleado', function () {
         return view('empleado.dashboard');
     })->name('empleado.dashboard');
+
+    // web.php
+    Route::post('/tareas/{id}/guardar-tiempo', [TareaController::class, 'guardarTiempo'])
+        ->name('tareas.guardarTiempo');
+
+
+    Route::post('/tareas/{tarea}/finalizar', [TareaController::class, 'finalizar']);
 
     // Nueva ruta para gestionar tareas del empleado
     Route::get('/tus-tareas', [EmpleadoDashboardController::class, 'tareas'])->name('empleado.tareas');
