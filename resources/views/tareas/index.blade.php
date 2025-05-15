@@ -11,15 +11,15 @@
         Volver al dashboard
     </a>
 
-    <form method="GET" action="{{ route('tareas.index') }}" class="mb-4">
-        <label for="ordenar_por" class="mr-2 font-semibold">Ordenar por:</label>
-        <select name="ordenar_por" id="ordenar_por" onchange="this.form.submit()" class="border rounded px-2 py-1">
+    <form method="GET" action="{{ route('tareas.index') }}">
+        <select name="estado" onchange="this.form.submit()">
             <option value="">Ver todas</option>
-            <option value="fecha_inicio" {{ request('ordenar_por') == 'fecha_inicio' ? 'selected' : '' }}>Fecha de Inicio</option>
-            <option value="empleado_id" {{ request('ordenar_por') == 'empleado_id' ? 'selected' : '' }}>Empleado</option>
-            <option value="estado" {{ request('ordenar_por') == 'estado' ? 'selected' : '' }}>Estado</option>
+            <option value="Asignada" {{ request('estado') == 'Asignada' ? 'selected' : '' }}>Asignadas</option>
+            <option value="En curso" {{ request('estado') == 'En curso' ? 'selected' : '' }}>En curso</option>
+            <option value="Finalizada" {{ request('estado') == 'Finalizada' ? 'selected' : '' }}>Finalizadas</option>
         </select>
     </form>
+
 
     <h2 class="text-2xl font-bold mb-4">Tareas por orden</h2>
 

@@ -7,6 +7,7 @@ use App\Models\Orden;
 use App\Models\Tarea;
 use Illuminate\Support\Carbon;
 
+
 class TareaController extends Controller
 {
     /**
@@ -14,16 +15,23 @@ class TareaController extends Controller
      */
     public function index(Request $request)
     {
-        $estado = $request->get('estado');
+        $estado = $request->estado;
 
-        $ordenes = Orden::with(['tareas' => function ($query) use ($estado) {
-            if ($estado) {
+        if ($estado) {
+            $ordenes = Orden::whereHas('tareas', function ($query) use ($estado) {
                 $query->where('estado', $estado);
-            }
-        }])->get();
+            })->with(['tareas' => function ($query) use ($estado) {
+                $query->where('estado', $estado);
+            }])->get();
+        } else {
+            $ordenes = Orden::with('tareas')->get();
+        }
 
         return view('tareas.index', compact('ordenes'));
     }
+
+
+
 
     /**
      * Muestra el formulario para crear una nueva tarea asociada a una orden.
@@ -127,14 +135,14 @@ class TareaController extends Controller
      * Finaliza una tarea, calcula el tiempo trabajado y actualiza el estado a Finalizada.
      */
     public function finalizar(Request $request, Tarea $tarea)
-{
-    $tarea->tiempo_real = $request->input('tiempo_real');
-    $tarea->estado = 'Finalizada';
-    $tarea->cronometro_inicio = null; // Detener cronómetro
-    $tarea->save();
+    {
+        $tarea->tiempo_real = $request->input('tiempo_real');
+        $tarea->estado = 'Finalizada';
+        $tarea->cronometro_inicio = null; // Detener cronómetro
+        $tarea->save();
 
-    return response()->json(['success' => true]);
-}
+        return response()->json(['success' => true]);
+    }
 
 
     public function actualizarTiempo(Request $request, Tarea $tarea)
