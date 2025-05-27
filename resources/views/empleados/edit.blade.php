@@ -17,31 +17,32 @@
         @method('PUT')
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="mb-4">
-
-                @if ($empleado->foto)
+            {{-- Foto --}}
+            <div class="mb-4 col-span-2">
+                <label class="block text-gray-700 mb-1">Foto de perfil</label>
                 <div class="relative group w-32 h-32 rounded-full overflow-hidden shadow mb-2">
-                    <img id="preview" src="{{ asset('storage/' . $empleado->foto) }}" alt="Foto actual" class="w-full h-full object-cover">
+                    @if ($empleado->foto)
+                        <img id="preview" src="{{ asset('storage/' . $empleado->foto) }}"
+                             alt="Foto actual"
+                             class="w-full h-full object-cover">
+                    @else
+                        <img id="preview" src="" alt="Previsualización"
+                             class="hidden w-full h-full object-cover bg-gray-100">
+                    @endif
 
-                    {{-- Capa al pasar el ratón --}}
-                    <label for="foto" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <label for="foto"
+                           class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                         <span class="text-white text-sm">Cambiar foto</span>
                     </label>
-
                 </div>
-                @else
-                <img id="preview" src="" alt="Previsualización" class="hidden mt-2 w-32 h-32 rounded-full object-cover">
-                @endif
+                <input type="file" name="foto" id="foto" accept="image/*"
+                       onchange="mostrarPrevisualizacion()"
+                       class="mt-1 block w-full border rounded px-3 py-2">
+            </div>
 
-                <input type="file" name="foto" id="foto" accept="image/*" onchange="mostrarPrevisualizacion()" class="hidden">
-                </div>
-
-
-
-
-
+            {{-- Datos básicos --}}
             <div>
-                <label for=" nombre" class="block font-medium">Nombre *</label>
+                <label for="nombre" class="block font-medium">Nombre *</label>
                 <input type="text" name="nombre" id="nombre" required value="{{ old('nombre', $empleado->nombre) }}"
                     class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
             </div>
@@ -72,12 +73,9 @@
 
             <div class="mb-4">
                 <label for="hora_entrada_contrato" class="block text-gray-700">Hora de entrada (Contrato)</label>
-                <input
-                    type="time"
-                    id="hora_entrada_contrato"
-                    name="hora_entrada_contrato"
-                    value="{{ old('hora_entrada_contrato', $empleado->hora_entrada_contrato ?? '') }}"
-                    class="mt-1 block w-full border rounded px-3 py-2">
+                <input type="time" id="hora_entrada_contrato" name="hora_entrada_contrato"
+                       value="{{ old('hora_entrada_contrato', $empleado->hora_entrada_contrato ?? '') }}"
+                       class="mt-1 block w-full border rounded px-3 py-2">
             </div>
 
             <div>
@@ -118,14 +116,16 @@
 
             <div>
                 <label for="cumple_dia" class="block font-medium">Día de cumpleaños</label>
-                <input type="number" name="cumple_dia" id="cumple_dia" min="1" max="31" value="{{ old('cumple_dia', $empleado->cumple_dia) }}"
-                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
+                <input type="number" name="cumple_dia" id="cumple_dia" min="1" max="31"
+                       value="{{ old('cumple_dia', $empleado->cumple_dia) }}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
             </div>
 
             <div>
                 <label for="cumple_mes" class="block font-medium">Mes de cumpleaños</label>
-                <input type="number" name="cumple_mes" id="cumple_mes" min="1" max="12" value="{{ old('cumple_mes', $empleado->cumple_mes) }}"
-                    class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
+                <input type="number" name="cumple_mes" id="cumple_mes" min="1" max="12"
+                       value="{{ old('cumple_mes', $empleado->cumple_mes) }}"
+                       class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro" />
             </div>
 
             <div>
@@ -146,20 +146,18 @@
                     class="w-full border border-gray-300 rounded px-3 py-2 mt-1 text-negro">{{ old('observaciones', $empleado->observaciones) }}</textarea>
             </div>
 
-
-
             <div class="mt-6">
                 <button type="submit"
                     class="bg-azul hover:bg-granate text-white px-6 py-2 rounded-lg font-semibold shadow transition">
                     Actualizar empleado
                 </button>
             </div>
+        </div>
     </form>
 </div>
 @endsection
 
 @push('scripts')
-
 <script>
     function mostrarPrevisualizacion() {
         const input = document.getElementById('foto');

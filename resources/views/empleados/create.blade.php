@@ -4,7 +4,6 @@
 <div class="bg-white p-6 rounded shadow-md">
 
     <a href="{{ route('dashboard') }}" class="inline-flex items-center text-azul hover:underline mb-4">
-        <!-- Icono de flecha hacia la izquierda -->
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M12.707 15.707a1 1 0 01-1.414 0L6.586 11H17a1 1 0 110 2H6.586l4.707 4.707a1 1 0 01-1.414 1.414l-6.414-6.414a1 1 0 010-1.414l6.414-6.414a1 1 0 011.414 1.414L6.586 9H17a1 1 0 110 2H6.586l4.707 4.707a1 1 0 010 1.414z" clip-rule="evenodd" />
         </svg>
@@ -17,11 +16,16 @@
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{-- Campos principales --}}
-
+            {{-- Foto --}}
             <div class="mb-4">
                 <label for="foto" class="block text-gray-700">Foto de perfil</label>
-                <input type="file" name="foto" id="foto" accept="image/*" class="mt-1 block w-full border rounded px-3 py-2">
+                <input type="file" name="foto" id="foto" accept="image/*"
+                       onchange="mostrarPrevisualizacion()"
+                       class="mt-1 block w-full border rounded px-3 py-2">
+                <div class="mt-2">
+                    <img id="preview" class="hidden mt-2 rounded-full object-cover border border-gray-300 shadow"
+                         style="width: 150px; height: 150px;" alt="Previsualización de foto">
+                </div>
             </div>
 
             <div>
@@ -58,7 +62,6 @@
                     value="{{ old('hora_entrada_contrato', $empleado->hora_entrada_contrato ?? '') }}"
                     class="mt-1 block w-full border rounded px-3 py-2">
             </div>
-
 
             <div>
                 <label for="telefono" class="block font-medium">Teléfono</label>
@@ -115,12 +118,8 @@
                 <textarea name="observaciones" id="observaciones" rows="3" class="w-full border border-gray-300 rounded px-3 py-2 mt-1"></textarea>
             </div>
 
-
-
-            {{-- Campo oculto que contendría la imagen recortada --}}
             <input type="hidden" name="imagen_crop" id="imagen_crop">
 
-            {{-- Botón enviar --}}
             <div class="mt-6">
                 <button type="submit" class="bg-verde hover:bg-azul text-negro px-6 py-2 rounded-lg font-semibold shadow-md transition duration-200">
                     Guardar empleado
@@ -131,7 +130,6 @@
 </div>
 @endsection
 
-{{-- JavaScript: usar stack correcto --}}
 @push('scripts')
 <script>
     function mostrarPrevisualizacion() {
@@ -145,15 +143,6 @@
                 preview.classList.remove('hidden');
             };
             reader.readAsDataURL(file);
-        }
-    }
-
-    function recortarImagen() {
-        // Si decides volver a usar Cropper.js, aquí se integraría la lógica.
-        // Actualmente, solo usamos previsualización sin recorte real.
-        const preview = document.getElementById('preview');
-        if (preview && preview.src) {
-            document.getElementById('imagen_crop').value = preview.src;
         }
     }
 </script>

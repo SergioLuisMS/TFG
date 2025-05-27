@@ -19,6 +19,11 @@ class Tarea extends Model
     ];
 
 
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
+    }
+
 
 
     public function orden()

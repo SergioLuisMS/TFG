@@ -22,37 +22,40 @@ class EmpleadoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
-            'alias' => 'nullable|string|max:255',
-            'nif' => 'nullable|string|max:255',
             'primer_apellido' => 'nullable|string|max:255',
             'segundo_apellido' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:50',
-            'telefono_movil' => 'nullable|string|max:50',
+            'alias' => 'nullable|string|max:255',
+            'nif' => 'nullable|string|max:50',
+            'telefono' => 'nullable|string|max:20',
+            'telefono_movil' => 'nullable|string|max:20',
             'direccion' => 'nullable|string|max:255',
             'codigo_postal' => 'nullable|string|max:10',
-            'poblacion' => 'nullable|string|max:255',
-            'provincia' => 'nullable|string|max:255',
+            'poblacion' => 'nullable|string|max:100',
+            'provincia' => 'nullable|string|max:100',
             'cumple_dia' => 'nullable|integer|min:1|max:31',
             'cumple_mes' => 'nullable|integer|min:1|max:12',
             'email' => 'nullable|email|max:255',
+            'hora_entrada_contrato' => 'nullable',
             'bloqueado' => 'nullable|boolean',
             'observaciones' => 'nullable|string',
-            'foto' => 'nullable|image|max:2048', // Máximo 2MB
+            'foto' => 'nullable|image|max:2048', // Asegura que es una imagen
         ]);
 
+        $empleado = new \App\Models\Empleado($validated);
+        $empleado->bloqueado = $request->has('bloqueado');
+
+        // 📸 GUARDAR FOTO
         if ($request->hasFile('foto')) {
-            // Guarda la foto en storage/app/public/fotos
-            $validated['foto'] = $request->file('foto')->store('fotos', 'public');
+            $ruta = $request->file('foto')->store('fotos', 'public'); // -> fotos/ejemplo.jpg
+            $empleado->foto = $ruta;
         }
 
-        $validated['bloqueado'] = $request->has('bloqueado');
+        $empleado->save();
 
-        Empleado::create($validated);
-
-        return redirect()->route('empleados.index')->with('success', 'Empleado registrado correctamente');
+        return redirect()->route('empleados.index')->with('success', 'Empleado creado correctamente.');
     }
+
 
 
     /**
@@ -75,10 +78,9 @@ class EmpleadoController extends Controller
     /**
      * Actualiza los datos de un empleado existente.
      */
+
     public function update(Request $request, Empleado $empleado)
     {
-        
-
         $validated = $request->validate([
             'hora_entrada_contrato' => 'nullable|date_format:H:i',
             'nombre' => 'required|string|max:255',
@@ -100,22 +102,25 @@ class EmpleadoController extends Controller
             'foto' => 'nullable|image|max:2048',
         ]);
 
-        // Actualiza el modelo con todos los campos validados
+        // Asignar campos
         $empleado->fill($validated);
 
-        // Asegura el valor del checkbox
+        // Asegurar el estado del checkbox
         $empleado->bloqueado = $request->has('bloqueado');
 
-        // Procesa la foto si viene en la solicitud
+        // Procesar nueva imagen si se ha subido
         if ($request->hasFile('foto')) {
+            // Eliminar la imagen anterior si existe
             if ($empleado->foto && Storage::disk('public')->exists($empleado->foto)) {
                 Storage::disk('public')->delete($empleado->foto);
             }
 
-            $empleado->foto = $request->file('foto')->store('fotos', 'public');
+            // Guardar la nueva imagen
+            $ruta = $request->file('foto')->store('fotos', 'public');
+            $empleado->foto = $ruta;
         }
 
-        // Guarda todo, incluyendo la foto
+        // Guardar cambios
         $empleado->save();
 
         return redirect()->route('empleados.index')->with('success', 'Empleado actualizado correctamente.');

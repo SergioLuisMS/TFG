@@ -11,8 +11,10 @@
         Volver al dashboard
     </a>
 
-    <form method="GET" action="{{ route('tareas.index') }}">
-        <select name="estado" onchange="this.form.submit()">
+    <form method="GET" action="{{ route('tareas.index') }}" class="mb-6">
+        <label for="estado" class="block text-sm font-semibold text-gray-700 mb-1">Filtrar por estado:</label>
+        <select name="estado" id="estado" onchange="this.form.submit()"
+            class="block w-full max-w-xs px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-azul focus:border-azul text-sm bg-white">
             <option value="">Ver todas</option>
             <option value="Asignada" {{ request('estado') == 'Asignada' ? 'selected' : '' }}>Asignadas</option>
             <option value="En curso" {{ request('estado') == 'En curso' ? 'selected' : '' }}>En curso</option>
@@ -21,11 +23,12 @@
     </form>
 
 
+
     <h2 class="text-2xl font-bold mb-4">Tareas por orden</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach($ordenes as $orden)
-        <div class="bg-white shadow-md rounded-lg p-4 border border-gray-300 hover:shadow-lg transition">
+        <div class="bg-white rounded-lg p-4 border border-gray-300 transition duration-200 ease-in-out transform hover:scale-[1.01] hover:shadow-xl">
             <div class="flex justify-between items-center mb-2">
                 <div>
                     <span class="text-sm text-gray-500 font-semibold">OR:</span>
@@ -53,6 +56,9 @@
             <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50"
                 data-id="{{ $tarea->id }}"
                 data-inicio="{{ $tarea->cronometro_inicio }}">
+                <p class="text-sm font-mono text-gray-700 mt-2">
+                    Tiempo actual: <span x-text="cronometros[{{ $tarea->id }}] ?? '00:00:00'">00:00:00</span>
+                </p>
                 @else
                 <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50">
                     <p class="text-sm font-mono text-gray-700 mt-2">
@@ -65,6 +71,7 @@
                         {{ "{$h}:{$m}:{$s}" }}
                     </p>
                     @endif
+
 
                     <div class="flex justify-between items-center">
                         <div>
@@ -96,6 +103,48 @@
                     <div class="text-sm mt-2 text-gray-700 border border-dashed border-gray-400 p-2 rounded">
                         {{ $tarea->descripcion ?? 'Sin descripción' }}
                     </div>
+
+                    @if($tarea->comentarios->count())
+                    <div class="mt-3 text-sm text-gray-800 border-t pt-2">
+                        <h4 class="font-semibold mb-1 text-gray-700">🗨 Comentarios:</h4>
+                        <ul class="space-y-2">
+                            @foreach($tarea->comentarios as $comentario)
+                            <li class="border rounded bg-gray-50 p-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-medium text-blue-700">
+                                        {{ $comentario->empleado->nombre }} {{ $comentario->empleado->primer_apellido }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        {{ $comentario->created_at->format('d/m/Y H:i') }}
+                                    </span>
+                                </div>
+
+                                <div class="text-gray-700 mt-1">
+                                    {{ $comentario->contenido }}
+                                </div>
+
+                                {{-- Valoración del administrador --}}
+                                <form action="{{ route('comentarios.valorar', $comentario) }}" method="POST" class="mt-2 inline-flex items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+
+                                    <label for="valoracion_{{ $comentario->id }}" class="text-xs text-gray-600">Valorar:</label>
+                                    <select name="valoracion" id="valoracion_{{ $comentario->id }}"
+                                        onchange="this.form.submit()"
+                                        class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <option value="{{ $i }}" {{ $comentario->valoracion == $i ? 'selected' : '' }}>
+                                            {{ $i }}
+                                            </option>
+                                            @endfor
+                                    </select>
+                                </form>
+                            </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
+
 
                     @if($tarea->estado === 'Finalizada' && $tarea->tiempo_real)
                     @php

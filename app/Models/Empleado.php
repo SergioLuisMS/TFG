@@ -17,6 +17,12 @@ class Empleado extends Model
     {
         return $this->hasMany(Tarea::class);
     }
+    
+    public function comentarios()
+    {
+        return $this->hasMany(Comentario::class);
+    }
+
 
     protected $fillable = [
         'hora_entrada_contrato',

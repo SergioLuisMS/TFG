@@ -13,6 +13,7 @@ use App\Http\Middleware\AdminOnly;
 use App\Http\Controllers\EmpleadoDashboardController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\HoldedController;
+use App\Http\Controllers\ComentarioController;
 
 
 Route::resourceVerbs(['create' => 'crear', 'edit' => 'editar']);
@@ -38,9 +39,7 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware(['auth', \App\Http\Middleware\VerificarRol::class])->group(function () {
-    Route::get('/dashboard-empleado', function () {
-        return view('empleado.dashboard');
-    })->name('empleado.dashboard');
+    Route::get('/dashboard-empleado', [EmpleadoDashboardController::class, 'dashboard'])->name('empleado.dashboard');
 
     // web.php
     Route::post('/tareas/{id}/guardar-tiempo', [TareaController::class, 'guardarTiempo'])
@@ -51,11 +50,20 @@ Route::middleware(['auth', \App\Http\Middleware\VerificarRol::class])->group(fun
 
     // Nueva ruta para gestionar tareas del empleado
     Route::get('/tus-tareas', [EmpleadoDashboardController::class, 'tareas'])->name('empleado.tareas');
+
+    Route::post('/tareas/{tarea}/comentarios', [ComentarioController::class, 'store'])->name('comentarios.store');
+
+    Route::delete('/comentarios/{comentario}', [ComentarioController::class, 'destroy'])->name('comentarios.destroy');
+
+    // Aquí van las rutas del dashboard de empleados
 });
+
 
 
 // Bloquea TODO el sistema solo para admin
 Route::middleware(['auth', VerificarRol::class, AdminOnly::class])->group(function () {
+
+    Route::patch('/comentarios/{comentario}/valorar', [ComentarioController::class, 'valorar'])->name('comentarios.valorar');
 
     /** Gestión de usuarios pendientes **/
     Route::get('/usuarios/pendientes', [UserController::class, 'pendientes'])->name('usuarios.pendientes');
@@ -101,7 +109,6 @@ Route::middleware(['auth', VerificarRol::class, AdminOnly::class])->group(functi
     Route::patch('/registro-entrada/{id}/actualizar-hora', [FaltasController::class, 'actualizarHora'])->name('registroEntrada.actualizarHora');
 
     Route::get('/holded/buscar-contacto', [HoldedController::class, 'buscarContacto']);
-
 });
 
 // Rutas de login, registro, etc.
