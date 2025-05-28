@@ -3,15 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\Orden;
 use App\Models\Tarea;
-use Illuminate\Support\Carbon;
-
+use App\Models\Empleado;
 
 class TareaController extends Controller
 {
     /**
-     * Muestra el listado de órdenes con sus tareas filtradas por estado si se proporciona.
+     * Muestra el listado de órdenes con sus tareas.
+     * Filtra por estado si se proporciona.
      */
     public function index(Request $request)
     {
@@ -30,27 +31,22 @@ class TareaController extends Controller
         return view('tareas.index', compact('ordenes'));
     }
 
-
-
-
     /**
-     * Muestra el formulario para crear una nueva tarea asociada a una orden.
+     * Muestra el formulario para crear una tarea asociada a una orden.
      */
     public function create(Request $request)
     {
-        $empleados = \App\Models\Empleado::all();
-        $orden = \App\Models\Orden::findOrFail($request->orden);
+        $orden = Orden::findOrFail($request->orden);
+        $empleados = Empleado::all();
 
-        return view('tareas.create', compact('empleados', 'orden'));
+        return view('tareas.create', compact('orden', 'empleados'));
     }
-
 
     /**
      * Almacena una nueva tarea en la base de datos.
      */
     public function store(Request $request)
     {
-        // Validación de los datos del formulario
         $validated = $request->validate([
             'orden_id' => 'required|exists:ordenes,id',
             'empleado_id' => 'required|exists:empleados,id',
@@ -60,17 +56,10 @@ class TareaController extends Controller
             'tiempo_previsto' => 'nullable|integer|min:0',
         ]);
 
-        // Crear la tarea
-        \App\Models\Tarea::create($validated);
+        Tarea::create($validated);
 
         return redirect()->route('tareas.index')->with('success', 'Tarea creada correctamente.');
     }
-
-    // Métodos vacíos generados por el recurso, puedes implementarlos más adelante si los necesitas.
-    public function show(string $id) {}
-    public function edit(string $id) {}
-    public function update(Request $request, string $id) {}
-    public function destroy(string $id) {}
 
     /**
      * Cambia el estado de una tarea entre Asignada -> En curso -> Finalizada.
@@ -89,7 +78,7 @@ class TareaController extends Controller
     }
 
     /**
-     * Inicia el cronómetro de una tarea y la marca como En curso.
+     * Inicia el cronómetro y marca como En curso.
      */
     public function iniciarCronometro(Tarea $tarea)
     {
@@ -101,15 +90,13 @@ class TareaController extends Controller
     }
 
     /**
-     * Finaliza el cronómetro de una tarea, guarda el tiempo real trabajado y marca como Finalizada.
+     * Finaliza el cronómetro, guarda el tiempo trabajado y marca como Finalizada.
      */
     public function finalizarCronometro(Tarea $tarea)
     {
         if ($tarea->cronometro_inicio) {
             $inicio = Carbon::parse($tarea->cronometro_inicio);
-            $fin = now();
-            $tiempoEnSegundos = $inicio->diffInSeconds($fin);
-            $tarea->tiempo_real = $tiempoEnSegundos;
+            $tarea->tiempo_real = $inicio->diffInSeconds(now());
         }
 
         $tarea->estado = 'Finalizada';
@@ -120,56 +107,59 @@ class TareaController extends Controller
     }
 
     /**
-     * Marca una tarea como En curso e inicia el cronómetro.
+     * Alternativa para marcar tarea como En curso desde botón individual.
      */
     public function marcarEnCurso(Tarea $tarea)
     {
         $tarea->estado = 'En curso';
-        $tarea->cronometro_inicio = Carbon::now();
+        $tarea->cronometro_inicio = now();
         $tarea->save();
 
         return redirect()->route('tareas.index')->with('success', 'Tarea iniciada.');
     }
 
     /**
-     * Finaliza una tarea, calcula el tiempo trabajado y actualiza el estado a Finalizada.
+     * Finaliza una tarea desde frontend con tiempo ya calculado (JS).
      */
     public function finalizar(Request $request, Tarea $tarea)
     {
         $tarea->tiempo_real = $request->input('tiempo_real');
         $tarea->estado = 'Finalizada';
-        $tarea->cronometro_inicio = null; // Detener cronómetro
+        $tarea->cronometro_inicio = null;
         $tarea->save();
 
         return response()->json(['success' => true]);
     }
 
-
+    /**
+     * Actualiza el tiempo real trabajado manualmente (desde formulario o ajustes).
+     */
     public function actualizarTiempo(Request $request, Tarea $tarea)
     {
         $request->validate([
             'tiempo_real' => 'required|regex:/^\d{1,2}:\d{2}:\d{2}$/'
         ]);
 
-
-        list($horas, $minutos, $segundos) = explode(':', $request->tiempo_real);
-        $totalSegundos = ($horas * 3600) + ($minutos * 60) + $segundos;
-
-        $tarea->tiempo_real = $totalSegundos;
+        list($h, $m, $s) = explode(':', $request->tiempo_real);
+        $tarea->tiempo_real = ($h * 3600) + ($m * 60) + $s;
         $tarea->save();
 
         return back()->with('success', 'Tiempo actualizado correctamente.');
     }
 
+    /**
+     * Guarda el tiempo total en segundos y pausa el cronómetro.
+     * Usado por el frontend al hacer clic en "Pausar".
+     */
     public function guardarTiempo(Request $request, $id)
     {
         $request->validate([
-            'tiempo_real' => 'required|integer', // tiempo en segundos
+            'tiempo_real' => 'required|integer',
         ]);
 
         $tarea = Tarea::findOrFail($id);
         $tarea->tiempo_real = $request->tiempo_real;
-        $tarea->cronometro_inicio = null; // IMPORTANTE: anular cronómetro al pausar
+        $tarea->cronometro_inicio = null;
         $tarea->save();
 
         return response()->json(['success' => true, 'mensaje' => 'Tiempo actualizado y cronómetro pausado.']);
