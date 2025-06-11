@@ -53,22 +53,22 @@
             @endphp
 
             @if ($mostrarCronometroEnVivo)
-            <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50"
+            <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50 transition duration-200 ease-in-out transform hover:scale-[1.01] hover:shadow-md"
                 data-id="{{ $tarea->id }}"
                 data-inicio="{{ $tarea->cronometro_inicio }}">
                 <p class="text-sm font-mono text-gray-700 mt-2">
                     Tiempo actual: <span x-text="cronometros[{{ $tarea->id }}] ?? '00:00:00'">00:00:00</span>
                 </p>
                 @else
-                <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50">
+                <div class="border-2 {{ $borderColor }} rounded-lg p-3 mb-2 bg-gray-50 transition duration-200 ease-in-out transform hover:scale-[1.01] hover:shadow-md"
                     <p class="text-sm font-mono text-gray-700 mt-2">
-                        Tiempo actual:
-                        @php
-                        $h = str_pad(floor($tarea->tiempo_real / 3600), 2, '0', STR_PAD_LEFT);
-                        $m = str_pad(floor(($tarea->tiempo_real % 3600) / 60), 2, '0', STR_PAD_LEFT);
-                        $s = str_pad($tarea->tiempo_real % 60, 2, '0', STR_PAD_LEFT);
-                        @endphp
-                        {{ "{$h}:{$m}:{$s}" }}
+                    Tiempo actual:
+                    @php
+                    $h = str_pad(floor($tarea->tiempo_real / 3600), 2, '0', STR_PAD_LEFT);
+                    $m = str_pad(floor(($tarea->tiempo_real % 3600) / 60), 2, '0', STR_PAD_LEFT);
+                    $s = str_pad($tarea->tiempo_real % 60, 2, '0', STR_PAD_LEFT);
+                    @endphp
+                    {{ "{$h}:{$m}:{$s}" }}
                     </p>
                     @endif
 

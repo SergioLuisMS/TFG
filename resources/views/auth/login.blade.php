@@ -2,7 +2,7 @@
 
 @section('content')
 
-ç<div class="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
+<div class="min-h-screen flex items-center justify-center bg-[#f5f5f5]">
     <div class="bg-[#1d1d1b] p-8 rounded-2xl shadow-lg w-full max-w-md">
         <h1 class="text-2xl font-bold mb-6 text-white text-center">Iniciar sesión</h1>
 
