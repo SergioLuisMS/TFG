@@ -19,7 +19,7 @@ class HoldedController extends Controller
     public function buscarContacto(Request $request)
     {
         // Clave API de Holded (cámbiala por seguridad si está en producción)
-        $apiKey = 'c97ee95e36b9312f9725f5d3331c62d1'; // ⚠ Reemplaza con variable segura si es posible
+        $apiKey = 'api'; // ⚠ Reemplaza con variable segura si es posible
 
         // Nombre del contacto buscado recibido por GET (ej: ?nombre=Juan Pérez)
         $queryNombre = $request->input('nombre');
