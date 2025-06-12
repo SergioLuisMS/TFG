@@ -82,8 +82,6 @@ class EmpleadoController extends Controller
      public function update(Request $request, Empleado $empleado)
      {
      
-         // Paso 2: Mostrar todos los datos que llegan del formulario
-         dd($request->all());
      
          $validated = $request->validate([
              'hora_entrada_contrato' => 'nullable|date_format:H:i',
@@ -110,7 +108,7 @@ class EmpleadoController extends Controller
          $empleado->fill($validated);
          $empleado->bloqueado = $request->has('bloqueado');
      
-         // dd($empleado->getDirty()); // Verifica qué campos han cambiado
+         dd($empleado->getDirty()); // Verifica qué campos han cambiado
      
          // Paso 4: Procesar imagen si existe
          if ($request->hasFile('foto')) {
