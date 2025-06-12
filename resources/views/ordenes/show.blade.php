@@ -44,11 +44,6 @@
         @endif
     </div>
 
-    <div class="mt-6">
-        <a href="{{ route('ordenes.edit', $orden) }}"
-           class="bg-verde hover:bg-azul text-negro font-semibold px-6 py-2 rounded shadow transition">
-            Editar orden
-        </a>
-    </div>
+   
 </div>
 @endsection
