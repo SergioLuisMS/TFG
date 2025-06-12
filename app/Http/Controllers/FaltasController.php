@@ -29,7 +29,6 @@ class FaltasController extends Controller
     /**
      * Guarda las faltas seleccionadas para el día actual.
      */
-    use App\Models\RegistroEntrada;
 
     public function store(Request $request)
     {
