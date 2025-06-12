@@ -81,7 +81,6 @@ class EmpleadoController extends Controller
 
     public function update(Request $request, Empleado $empleado)
     {
-        dd('entra al update');
 
         $validated = $request->validate([
             'hora_entrada_contrato' => 'nullable|date_format:H:i',
