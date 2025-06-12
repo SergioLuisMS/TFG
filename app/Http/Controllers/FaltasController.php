@@ -16,15 +16,22 @@ class FaltasController extends Controller
     public function index()
     {
         $empleados = Empleado::all();
-        $hoy = Carbon::now();
+        $hoy = Carbon::now()->toDateString();
 
-        // Obtener las faltas registradas hoy
-        $faltasDeHoy = Falta::where('fecha', $hoy->toDateString())
+        // Obtener los empleados que han faltado hoy
+        $faltasDeHoy = Falta::where('fecha', $hoy)
             ->pluck('empleado_id')
             ->toArray();
 
-        return view('faltas.index', compact('empleados', 'faltasDeHoy'));
+        // Obtener horas de entrada registradas hoy
+        $registros = \App\Models\RegistroEntrada::where('fecha', $hoy)->get();
+
+        // Construir array asociativo [empleado_id => hora]
+        $horasEntradaDeHoy = $registros->pluck('hora_real_entrada', 'empleado_id')->toArray();
+
+        return view('faltas.index', compact('empleados', 'faltasDeHoy', 'horasEntradaDeHoy'));
     }
+
 
     /**
      * Guarda las faltas seleccionadas para el día actual.
@@ -35,13 +42,13 @@ class FaltasController extends Controller
         $fechaHoy = now()->toDateString();
         $idsMarcados = $request->input('faltas', []);
         $horasEntrada = $request->input('horas_entrada', []);
-    
+
         // Eliminar faltas existentes del día
         Falta::where('fecha', $fechaHoy)->delete();
-    
+
         // Eliminar registros de entrada existentes del día
         RegistroEntrada::where('fecha', $fechaHoy)->delete();
-    
+
         // Registrar nuevas faltas
         foreach ($idsMarcados as $empleadoId) {
             Falta::create([
@@ -49,7 +56,7 @@ class FaltasController extends Controller
                 'fecha'       => $fechaHoy,
             ]);
         }
-    
+
         // Registrar horas de entrada para los que NO han faltado
         foreach ($horasEntrada as $empleadoId => $hora) {
             // Solo si no está marcado como falta y se ha introducido hora válida
@@ -61,11 +68,11 @@ class FaltasController extends Controller
                 ]);
             }
         }
-    
+
         return redirect()->route('asistencias.index')
             ->with('success', 'Faltas y registros de entrada actualizados correctamente.');
     }
-    
+
 
     /**
      * Muestra el formulario para asignar faltas manualmente.
