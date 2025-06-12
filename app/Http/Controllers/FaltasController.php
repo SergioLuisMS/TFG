@@ -6,6 +6,7 @@ use App\Models\Empleado;
 use App\Models\Falta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use App\Models\RegistroEntrada;
 
 class FaltasController extends Controller
 {
