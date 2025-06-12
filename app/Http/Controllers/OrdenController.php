@@ -122,15 +122,23 @@ class OrdenController extends Controller
             'pdf' => 'nullable|mimes:pdf|max:5120',
         ]);
 
-        $orden->update($validated);
-
-        if ($request->hasFile('pdf')) {
-            $orden->pdf = $request->file('pdf')->store('pdfs', 'public');
-            $orden->save();
+        // Aplicar validación manualmente para asegurar que se guarda todo
+        foreach ($validated as $key => $value) {
+            $orden->$key = $value;
         }
 
-        return redirect()->route('ordenes.index', request()->query())->with('success', 'Orden actualizada correctamente.');
+        // Procesar PDF si se subió uno nuevo
+        if ($request->hasFile('pdf')) {
+            $orden->pdf = $request->file('pdf')->store('pdfs', 'public');
+        }
+
+        // Guardar cambios aunque no haya cambios "dirty"
+        $orden->save();
+
+        return redirect()->route('ordenes.index', request()->query())
+            ->with('success', 'Orden actualizada correctamente.');
     }
+
 
 
     /**
