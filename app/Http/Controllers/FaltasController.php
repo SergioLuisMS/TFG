@@ -28,14 +28,20 @@ class FaltasController extends Controller
     /**
      * Guarda las faltas seleccionadas para el día actual.
      */
+    use App\Models\RegistroEntrada;
+
     public function store(Request $request)
     {
         $fechaHoy = now()->toDateString();
         $idsMarcados = $request->input('faltas', []);
-
+        $horasEntrada = $request->input('horas_entrada', []);
+    
         // Eliminar faltas existentes del día
         Falta::where('fecha', $fechaHoy)->delete();
-
+    
+        // Eliminar registros de entrada existentes del día
+        RegistroEntrada::where('fecha', $fechaHoy)->delete();
+    
         // Registrar nuevas faltas
         foreach ($idsMarcados as $empleadoId) {
             Falta::create([
@@ -43,10 +49,23 @@ class FaltasController extends Controller
                 'fecha'       => $fechaHoy,
             ]);
         }
-
+    
+        // Registrar horas de entrada para los que NO han faltado
+        foreach ($horasEntrada as $empleadoId => $hora) {
+            // Solo si no está marcado como falta y se ha introducido hora válida
+            if (!in_array($empleadoId, $idsMarcados) && $hora) {
+                RegistroEntrada::create([
+                    'empleado_id'       => $empleadoId,
+                    'fecha'             => $fechaHoy,
+                    'hora_real_entrada' => $hora,
+                ]);
+            }
+        }
+    
         return redirect()->route('asistencias.index')
-            ->with('success', 'Faltas guardadas correctamente.');
+            ->with('success', 'Faltas y registros de entrada actualizados correctamente.');
     }
+    
 
     /**
      * Muestra el formulario para asignar faltas manualmente.
