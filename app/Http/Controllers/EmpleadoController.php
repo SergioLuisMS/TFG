@@ -81,11 +81,8 @@ class EmpleadoController extends Controller
 
      public function update(Request $request, Empleado $empleado)
      {
-         // Paso 1: Confirmar que entra al método
-         dd('Entró al método update');
      
          // Paso 2: Mostrar todos los datos que llegan del formulario
-         // dd($request->all());
      
          $validated = $request->validate([
              'hora_entrada_contrato' => 'nullable|date_format:H:i',
