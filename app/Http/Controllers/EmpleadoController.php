@@ -83,6 +83,7 @@ class EmpleadoController extends Controller
      {
      
          // Paso 2: Mostrar todos los datos que llegan del formulario
+         dd($request->all());
      
          $validated = $request->validate([
              'hora_entrada_contrato' => 'nullable|date_format:H:i',
